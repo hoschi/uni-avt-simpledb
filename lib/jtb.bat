@@ -1,0 +1,1 @@
+java.exe "-Dinstall.root=..\lib\jtb" -classpath "..\lib\jtb.jar;lib" EDU/purdue/jtb/JTB %1 %2 %3 %4 %5 %6 %7 %8 %9

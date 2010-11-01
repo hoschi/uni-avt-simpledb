@@ -1,0 +1,77 @@
+create table Buch (ID varchar , Titel varchar);
+create table Kunde (ID varchar, Name varchar, Vorname varchar, Adresse varchar);
+create table Bestellung (ID varchar, Datum varchar, Preis varchar, IstBezahlt varchar);
+create table Buch_Autor (B_ID varchar, Autorenname varchar);
+create table Kunde_Bestellung (K_ID varchar, B_ID varchar);
+create table Buch_Bestellung (Bu_ID varchar, Be_ID varchar);
+
+insert into Buch (ID,Titel) values ("Buch1","Grundlagen von Datenbanksystemen");
+insert into Buch (ID,Titel) values ("Buch2","Kennedys Hirn");
+insert into Buch (ID,Titel) values ("Buch3","Die rote Antilope");
+insert into Buch (ID,Titel) values ("Buch4","Einführung in die Automatentheorie, Formale Sprachen und Komplexitätstheorie");
+insert into Buch (ID,Titel) values ("Buch5","Java ist auch eine Insel");
+insert into Buch (ID,Titel) values ("Buch6","Verteilte Systeme. Grundlagen und Paradigmen");
+insert into Buch (ID,Titel) values ("Buch7","Der Schwarm");
+insert into Buch (ID,Titel) values ("Buch8","Computernetzwerke");
+insert into Buch (ID,Titel) values ("Buch9","Die Gehilfin");
+insert into Buch (ID,Titel) values ("Buch10","Tiefe");
+
+insert into Kunde (ID,Name,Vorname,Adresse) values ("Kunde1","KName1","KVorname1","KAdresse1");
+insert into Kunde (ID,Name,Vorname,Adresse) values ("Kunde2","KName2","KVorname2","KAdresse2");
+insert into Kunde (ID,Name,Vorname,Adresse) values ("Kunde3","KName3","KVorname3","KAdresse3");
+insert into Kunde (ID,Name,Vorname,Adresse) values ("Kunde4","KName4","KVorname4","KAdresse4");
+insert into Kunde (ID,Name,Vorname,Adresse) values ("Kunde5","KName5","KVorname5","KAdresse5");
+
+insert into Bestellung (ID,Datum,Preis,IstBezahlt) values ("Bestellung1","Datum1","Preis1","ja");
+insert into Bestellung (ID,Datum,Preis,IstBezahlt) values ("Bestellung2","Datum2","Preis2","nein");
+insert into Bestellung (ID,Datum,Preis,IstBezahlt) values ("Bestellung3","Datum3","Preis3","ja");
+insert into Bestellung (ID,Datum,Preis,IstBezahlt) values ("Bestellung4","Datum4","Preis4","nein");
+insert into Bestellung (ID,Datum,Preis,IstBezahlt) values ("Bestellung5","Datum5","Preis5","ja");
+insert into Bestellung (ID,Datum,Preis,IstBezahlt) values ("Bestellung6","Datum6","Preis6","ja");
+insert into Bestellung (ID,Datum,Preis,IstBezahlt) values ("Bestellung7","Datum7","Preis7","nein");
+insert into Bestellung (ID,Datum,Preis,IstBezahlt) values ("Bestellung8","Datum8","Preis8","ja");
+insert into Bestellung (ID,Datum,Preis,IstBezahlt) values ("Bestellung9","Datum9","Preis9","ja");
+insert into Bestellung (ID,Datum,Preis,IstBezahlt) values ("Bestellung10","Datum10","Preis10","ja");
+
+insert into Buch_Autor (B_ID,Autorenname) values ("Buch1","Ramez Elmasri");
+insert into Buch_Autor (B_ID,Autorenname) values ("Buch1","Shamkant B. Navathe");
+insert into Buch_Autor (B_ID,Autorenname) values ("Buch2","Henning Mankell");
+insert into Buch_Autor (B_ID,Autorenname) values ("Buch3","Henning Mankell");
+insert into Buch_Autor (B_ID,Autorenname) values ("Buch4","John E. Hopcroft");
+insert into Buch_Autor (B_ID,Autorenname) values ("Buch4","Rajeev Motwani");
+insert into Buch_Autor (B_ID,Autorenname) values ("Buch4","Jeffrey D. Ullman");
+insert into Buch_Autor (B_ID,Autorenname) values ("Buch5","Christian Ullenboom");
+insert into Buch_Autor (B_ID,Autorenname) values ("Buch7","Frank Schätzing");
+insert into Buch_Autor (B_ID,Autorenname) values ("Buch6","Andrew S. Tanenbaum");
+insert into Buch_Autor (B_ID,Autorenname) values ("Buch6","Maarten van Steen");
+insert into Buch_Autor (B_ID,Autorenname) values ("Buch8","Andrew S. Tanenbaum");
+insert into Buch_Autor (B_ID,Autorenname) values ("Buch9","Martin Kluger");
+insert into Buch_Autor (B_ID,Autorenname) values ("Buch10","Henning Mankell");
+
+
+insert into Kunde_Bestellung (K_ID,B_ID) values ("Kunde1","Bestellung1");
+insert into Kunde_Bestellung (K_ID,B_ID) values ("Kunde1","Bestellung2");
+insert into Kunde_Bestellung (K_ID,B_ID) values ("Kunde1","Bestellung3");
+insert into Kunde_Bestellung (K_ID,B_ID) values ("Kunde2","Bestellung4");
+insert into Kunde_Bestellung (K_ID,B_ID) values ("Kunde2","Bestellung5");
+insert into Kunde_Bestellung (K_ID,B_ID) values ("Kunde3","Bestellung6");
+insert into Kunde_Bestellung (K_ID,B_ID) values ("Kunde4","Bestellung7");
+insert into Kunde_Bestellung (K_ID,B_ID) values ("Kunde5","Bestellung8");
+insert into Kunde_Bestellung (K_ID,B_ID) values ("Kunde5","Bestellung9");
+insert into Kunde_Bestellung (K_ID,B_ID) values ("Kunde5","Bestellung10");
+
+insert into Buch_Bestellung (Bu_ID,Be_ID) values ("Buch1","Bestellung1");
+insert into Buch_Bestellung (Bu_ID,Be_ID) values ("Buch9","Bestellung1");
+insert into Buch_Bestellung (Bu_ID,Be_ID) values ("Buch3","Bestellung1");
+insert into Buch_Bestellung (Bu_ID,Be_ID) values ("Buch2","Bestellung2");
+insert into Buch_Bestellung (Bu_ID,Be_ID) values ("Buch3","Bestellung3");
+insert into Buch_Bestellung (Bu_ID,Be_ID) values ("Buch4","Bestellung4");
+insert into Buch_Bestellung (Bu_ID,Be_ID) values ("Buch10","Bestellung4");
+insert into Buch_Bestellung (Bu_ID,Be_ID) values ("Buch4","Bestellung5");
+insert into Buch_Bestellung (Bu_ID,Be_ID) values ("Buch1","Bestellung5");
+insert into Buch_Bestellung (Bu_ID,Be_ID) values ("Buch5","Bestellung6");
+insert into Buch_Bestellung (Bu_ID,Be_ID) values ("Buch6","Bestellung7");
+insert into Buch_Bestellung (Bu_ID,Be_ID) values ("Buch8","Bestellung7");
+insert into Buch_Bestellung (Bu_ID,Be_ID) values ("Buch7","Bestellung8");
+insert into Buch_Bestellung (Bu_ID,Be_ID) values ("Buch8","Bestellung9");
+insert into Buch_Bestellung (Bu_ID,Be_ID) values ("Buch9","Bestellung10");

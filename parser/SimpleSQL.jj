@@ -1,0 +1,408 @@
+options {
+  JAVA_UNICODE_ESCAPE = true;
+  OUTPUT_DIRECTORY = "gene";
+  STATIC=false;
+  DEBUG_PARSER=true;
+}
+
+PARSER_BEGIN(SimpleSQLParser)
+
+package parser.gene;
+
+import java.io.*;
+
+
+public class SimpleSQLParser
+{
+  	private boolean debugALL = false;
+	
+	public SimpleSQLParser() {
+		disable_tracing();
+	}
+	
+	public String escapeNewline(String str) {
+	    int i, ind;
+	    i = str.indexOf("\n");
+	    while (i != -1) {
+	      if (i>1 && str.charAt(i-1) == '\r') {
+	        str = str.substring(0,i-1) + " " + str.substring(i+1);
+	      } else {
+	        str = str.substring(0,i) + " " + str.substring(i+1);
+	      } // if
+	      i = str.indexOf("\n",i+1);
+	    } // while
+	    return str;
+	} // escapeNewline
+	  
+	  
+	public void setDebugALL(boolean debug) {
+	  	debugALL = debug;
+	  	if(debug) { 
+	  		enable_tracing();
+	  	} else {
+	  		disable_tracing();
+	  	}
+	}
+	  	  
+	public boolean IsDebugAll() {
+	  	return debugALL;
+	}
+   
+
+}//SimpleSQLParser
+
+PARSER_END(SimpleSQLParser)
+
+/* WHITE SPACE */
+
+SPECIAL_TOKEN :
+{
+  " "
+| "\t"
+| "\n"
+| "\r"
+| "\f"
+}
+
+/* COMMENTS */
+
+MORE :
+{
+  "//" : IN_SINGLE_LINE_COMMENT
+|
+  <"/**" ~["/"]> { input_stream.backup(1); } : IN_FORMAL_COMMENT
+|
+  "/*" : IN_MULTI_LINE_COMMENT
+}
+
+<IN_SINGLE_LINE_COMMENT>
+SPECIAL_TOKEN :
+{
+  <SINGLE_LINE_COMMENT: "\n" | "\r" | "\r\n" > : DEFAULT
+}
+
+<IN_FORMAL_COMMENT>
+SPECIAL_TOKEN :
+{
+  <FORMAL_COMMENT: "*/" > : DEFAULT
+}
+
+<IN_MULTI_LINE_COMMENT>
+SPECIAL_TOKEN :
+{
+  <MULTI_LINE_COMMENT: "*/" > : DEFAULT
+}
+
+
+<IN_SINGLE_LINE_COMMENT,IN_FORMAL_COMMENT,IN_MULTI_LINE_COMMENT>
+MORE :
+{
+  < ~[] > 
+}
+
+
+
+/* RESERVED WORDS AND LITERALS */
+
+TOKEN :
+{
+  < SELECT: "select" >
+| < FROM: "from" >
+| < WHERE: "where" >
+| < AND: "and" >
+| < OR: "or" >
+| < IN: "in" >
+| < NOT: "not" >
+| < AS: "as" >
+| < CREATE: "create" >
+| < DROP: "drop" >
+| < TABLE: "table" >
+| < UPDATE: "update" >
+| < SET: "set" >
+| < DELETE: "delete" >
+| < INSERT: "insert" >
+| < VALUES: "values" >
+| < INTO: "into" >
+| < VARCHAR: "varchar" >
+| < INTEGER: "integer" >
+| < FLOAT: "float" >
+}
+
+/* LITERALS */
+
+TOKEN :
+{
+  < INTEGER_LITERAL:
+        <DECIMAL_LITERAL> (["l","L"])?
+      | <HEX_LITERAL> (["l","L"])?
+      | <OCTAL_LITERAL> (["l","L"])?
+  >
+|
+  < #DECIMAL_LITERAL: ["1"-"9"] (["0"-"9"])* >
+|
+  < #HEX_LITERAL: "0" ["x","X"] (["0"-"9","a"-"f","A"-"F"])+ >
+|
+  < #OCTAL_LITERAL: "0" (["0"-"7"])* >
+|
+  < FLOATING_POINT_LITERAL:
+        (["0"-"9"])+ "." (["0"-"9"])* (<EXPONENT>)? (["f","F","d","D"])?
+      | "." (["0"-"9"])+ (<EXPONENT>)? (["f","F","d","D"])?
+      | (["0"-"9"])+ <EXPONENT> (["f","F","d","D"])?
+      | (["0"-"9"])+ (<EXPONENT>)? ["f","F","d","D"]
+  >
+|
+  < #EXPONENT: ["e","E"] (["+","-"])? (["0"-"9"])+ >
+|
+  < CHARACTER_LITERAL:
+      "'"
+      (   (~["'","\\","\n","\r"])
+        | ("\\"
+            ( ["n","t","b","r","f","\\","'","\""]
+            | ["0"-"7"] ( ["0"-"7"] )?
+            | ["0"-"3"] ["0"-"7"] ["0"-"7"]
+            )
+          )
+      )
+      "'"
+  >
+|
+  < STRING_LITERAL:
+      "\""
+      (   (~["\"","\\","\n","\r"])
+        | ("\\"
+            ( ["n","t","b","r","f","\\","'","\""]
+            | ["0"-"7"] ( ["0"-"7"] )?
+            | ["0"-"3"] ["0"-"7"] ["0"-"7"]
+            )
+          )
+      )*
+      "\""
+  >
+}
+
+/* IDENTIFIERS */
+
+TOKEN :
+{
+  < IDENTIFIER: <LETTER> (<LETTER>|<DIGIT>)* >
+|
+  < #LETTER:
+      [
+       /*"\u0024", //Martin:  entspricht dem $ */
+       "\u0041"-"\u005a",
+       "\u005f",
+       "\u0061"-"\u007a",
+       "\u00c0"-"\u00d6",
+       "\u00d8"-"\u00f6",
+       "\u00f8"-"\u00ff",
+       "\u0100"-"\u1fff",
+       "\u3040"-"\u318f",
+       "\u3300"-"\u337f",
+       "\u3400"-"\u3d2d",
+       "\u4e00"-"\u9fff",
+       "\uf900"-"\ufaff"
+      ]
+  >
+|
+  < #DIGIT:
+      [
+       "\u0030"-"\u0039",
+       "\u0660"-"\u0669",
+       "\u06f0"-"\u06f9",
+       "\u0966"-"\u096f",
+       "\u09e6"-"\u09ef",
+       "\u0a66"-"\u0a6f",
+       "\u0ae6"-"\u0aef",
+       "\u0b66"-"\u0b6f",
+       "\u0be7"-"\u0bef",
+       "\u0c66"-"\u0c6f",
+       "\u0ce6"-"\u0cef",
+       "\u0d66"-"\u0d6f",
+       "\u0e50"-"\u0e59",
+       "\u0ed0"-"\u0ed9",
+       "\u1040"-"\u1049"
+      ]
+  >
+}
+
+/* SEPARATORS */
+
+TOKEN :
+{
+  < LPAREN: "(" >
+| < RPAREN: ")" >
+| < COMMA: "," >
+| < DOT: "." >
+}
+
+
+/* OPERATORS */
+
+TOKEN :
+{
+  < EQ: "=" >
+| < LT: "<" >
+| < GT: ">" >
+| < LE: "<=" >
+| < GE: ">=" >
+| < NE: "!=" >
+}
+
+
+/*****************************************
+ * THE SIMPLE SQL GRAMMAR STARTS HERE *
+ *****************************************/
+
+void CompilationUnit():
+{}
+{
+ Query()
+ | Update()
+ | Delete()
+ | Insert()
+ | CreateTable()
+ | DropTable()
+}
+
+void Query():
+{}
+{
+ <SELECT> Items() <FROM> Tables() [Where()]  
+}
+
+void Items():
+{}
+{
+ Item() ("," Item())*
+}
+
+void Item():
+{}
+{
+ Name() ["." Name()]
+}
+
+void Tables():
+{}
+{
+ Table() ("," Table())*
+}
+
+void Table():
+{}
+{
+ Name() [<AS> Name()]
+}
+
+void Where():
+{}
+{
+ <WHERE> AndExpression() 
+}
+
+void AndExpression():
+{}
+{
+ OrExpression() (<AND> OrExpression())*
+}
+
+void OrExpression():
+{}
+{
+ ["("] EqualityExpression() (<OR> EqualityExpression())* [")"]
+}
+
+
+void EqualityExpression():
+{}
+{
+ PrimaryExpression() [("="|"!="|<LT>|<GT>|<LE>|<GE>)PrimaryExpression()]
+}
+
+void PrimaryExpression():
+{}
+{
+ LOOKAHEAD(3)
+ <IDENTIFIER> ["."<IDENTIFIER>]
+ | LiteralExpression()
+ 
+}
+
+void Literals():
+{}
+{
+ <STRING_LITERAL> ("," <STRING_LITERAL>)*
+}
+
+void Update():
+{}
+{
+ <UPDATE> Table() <SET> AssignExpressions() [Where()]
+}
+
+void AssignExpressions():
+{}
+{
+ AssignExpression() ("," AssignExpression())*
+}
+
+void AssignExpression():
+{}
+{
+ Name() "=" LiteralExpression()
+}
+
+void LiteralExpression():
+{}
+{
+ <STRING_LITERAL>
+}
+
+void Delete():
+{}
+{
+ <DELETE> <FROM> Table() [Where()]
+}
+
+void Insert():
+{}
+{
+ <INSERT> <INTO> Table() [ "(" ColumnNames() ")" ] <VALUES> "(" Literals() ")"
+}
+
+void ColumnNames():
+{}
+{
+ Name() ("," Name())*
+}
+
+void CreateTable():
+{}
+{
+ <CREATE> <TABLE> Name() "(" ColumnDefinition()  ("," ColumnDefinition())* ")"
+}
+
+void DropTable():
+{}
+{
+ <DROP> Name()
+}
+
+void Name():
+{}
+{
+ <IDENTIFIER>
+}
+
+void ColumnDefinition():
+{}
+{
+ Name() DataType()
+}
+
+void DataType():
+{}
+{
+ <VARCHAR>
+}
+

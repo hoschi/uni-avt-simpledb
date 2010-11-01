@@ -1,0 +1,3 @@
+select B.Titel from Buch_Autor as BA, Buch as B where BA.Autorenname="Frank Schätzing" and BA.B_ID=B.ID;
+select B.Titel from Buch_Autor as BA, Buch as B where BA.Autorenname="Henning Mankell" and BA.B_ID=B.ID;
+select B.Titel from Buch as B, Kunde as K, Buch_Bestellung as BB, Kunde_Bestellung as KB where K.Name="KName1" and K.ID=KB.K_ID and KB.B_ID=BB.Be_ID and BB.Bu_ID=B.ID;

@@ -12,7 +12,6 @@ public class Insert extends TableOperation {
 	@Override
 	public void execute(Table table) {
 		// TODO Auto-generated method stub
-		// kleiner test wegen github PT integration :)
 
 	}
 

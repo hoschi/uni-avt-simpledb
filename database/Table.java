@@ -67,11 +67,18 @@ public class Table implements Serializable {
 
 	public String toString() {
 		// TODO implement this
-		String s = "table '" + this.name + "' with columns '";
+		String s = "table '" + this.name + "'\ncolumns '";
 		for (String c : this.columnNames) {
-			s += c + ", ";
+			s += c + "\t";
 		}
-		s += "'";
+		s += "'\nrows\n";
+
+		for (List<String> row : this.rows) {
+			for (String value : row) {
+				s += value + "\t";
+			}
+			s += "\n";
+		}
 		return s;
 	}
 

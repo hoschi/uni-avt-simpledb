@@ -67,7 +67,12 @@ public class Table implements Serializable {
 
 	public String toString() {
 		// TODO implement this
-		return super.toString();
+		String s = "table '" + this.name + "' with columns '";
+		for (String c : this.columnNames) {
+			s += c + ", ";
+		}
+		s += "'";
+		return s;
 	}
 
 }

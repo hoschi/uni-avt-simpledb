@@ -1,13 +1,14 @@
 package relationenalgebra;
 
-import java.util.List;
-
-public class AndExpression implements IBooleanExpression {
-
-	private List<OrExpression> exprs;
-
-	public AndExpression(List<OrExpression> exprs) {
-		this.exprs = exprs;
+public class PrimaryExpression implements IBooleanExpression {
+	
+	private boolean constant;
+	
+	private String value;
+	
+	public PrimaryExpression(boolean constant, String value) {
+		this.constant = constant;
+		this.value = value;
 	}
 
 	@Override
@@ -21,5 +22,5 @@ public class AndExpression implements IBooleanExpression {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
+
 }

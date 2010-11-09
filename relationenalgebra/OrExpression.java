@@ -2,11 +2,11 @@ package relationenalgebra;
 
 import java.util.List;
 
-public class AndExpression implements IBooleanExpression {
-
-	private List<OrExpression> exprs;
-
-	public AndExpression(List<OrExpression> exprs) {
+public class OrExpression implements IBooleanExpression {
+	
+	private List<EqualityExpression> exprs;
+	
+	public OrExpression(List<EqualityExpression> exprs) {
 		this.exprs = exprs;
 	}
 
@@ -21,5 +21,5 @@ public class AndExpression implements IBooleanExpression {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
+
 }

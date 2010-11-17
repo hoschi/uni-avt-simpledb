@@ -1,6 +1,6 @@
 package relationenalgebra;
 
-public interface IOneChildNode {
+public interface IOneChildNode extends ITreeNode {
 	
 	public ITreeNode getChild();
 	

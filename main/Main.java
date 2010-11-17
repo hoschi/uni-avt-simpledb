@@ -20,7 +20,7 @@ public class Main {
 public static final String KUNDENDB = "db";
 
 	  public static void main(String[] args){
-		  Main.sqlToRelationenAlgebra("select mycol from mytable");
+		  Main.sqlToRelationenAlgebra("select mycol from mytable, myother");
 		  //Main.readFile(args[1]);
 	  }
 		

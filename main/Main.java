@@ -1,8 +1,18 @@
 package main;
 
+import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.io.StringReader;
+
+import parser.gene.ParseException;
+import parser.gene.SimpleSQLParser;
+import parser.syntaxtree.CompilationUnit;
+import parser.visitor.ObjectDepthFirst;
 import relationenalgebra.ITreeNode;
-import java.io.*;
-import database.*;
+import database.Table;
 
 public class Main {
 
@@ -10,7 +20,8 @@ public class Main {
 public static final String KUNDENDB = "db";
 
 	  public static void main(String[] args){
-		  Main.readFile(args[0]);
+		  Main.sqlToRelationenAlgebra("select mycol from mytable");
+		  //Main.readFile(args[1]);
 	  }
 		
 	public static void printKundenDB(){
@@ -38,18 +49,31 @@ public static final String KUNDENDB = "db";
 	}
 	
 	public static void execute(String simpleSQL){
-		 //TODO Anfrage übersetzen
-		 //TODO Anfrage ausführen
+		 //TODO Anfrage ï¿½bersetzen
+		 //TODO Anfrage ausfï¿½hren
 	}
 	
 	public static ITreeNode sqlToRelationenAlgebra(String simpleSQL){
-		//TODO default
+		SimpleSQLParser parser = 
+			 new SimpleSQLParser(
+			 new StringReader(simpleSQL));
+		parser.setDebugALL(true);
+		try{ CompilationUnit cu = 
+			parser.CompilationUnit();
+		ObjectDepthFirst v = new ObjectDepthFirst();
+		cu.accept(v,null);
+			}catch(ParseException e){
+				System.err.println(e.getMessage());
+				return null;
+			}
+
 		return null;
 	}
 	
 	
 	private static void executePlan(ITreeNode plan){
 		//TODO
+		 
 	}
 	
 	private static void readFile(String filename) {

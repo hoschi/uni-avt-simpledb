@@ -8,13 +8,14 @@ import parser.syntaxtree.Item;
 import parser.syntaxtree.Items;
 import parser.syntaxtree.Name;
 import parser.syntaxtree.Query;
+import parser.syntaxtree.Table;
+import parser.syntaxtree.Tables;
 import parser.visitor.ObjectDepthFirst;
 import relationenalgebra.ITreeNode;
 import relationenalgebra.Projection;
 import relationenalgebra.Selection;
 
 public class AlgebraVisitor extends ObjectDepthFirst {
-	static List<String> names = new ArrayList<String>();
 
 	/**
 	 * f0 -> Query() | Update() | Delete() | Insert() | CreateTable() |
@@ -33,16 +34,16 @@ public class AlgebraVisitor extends ObjectDepthFirst {
 	 */
 	public Object visit(Query n, Object argu) {
 		Logger.debug("  call: query");
-		// n.f0.accept(this, argu);
-		List<String> columns = null;
-		n.f1.accept(this, argu);
-		if (names != null) {
-			columns = names;
-			names = new ArrayList<String>();
-		}
-		// n.f2.accept(this, argu);
+
+		// get column names
+		List<String> columns = new ArrayList<String>();
+		n.f1.accept(this, columns);
+			
+
+		// get tables
 		ITreeNode tables = (ITreeNode) n.f3.accept(this, argu);
 
+		// get where ... if one exists
 		Selection where = (Selection) n.f4.accept(this, argu);
 		Projection projection = new Projection(columns);
 
@@ -54,6 +55,29 @@ public class AlgebraVisitor extends ObjectDepthFirst {
 		}
 		Logger.debug("  return: query");
 		return projection;
+	}
+
+	/**
+	 * f0 -> Table() f1 -> ( "," Table() )*
+	 */
+	public Object visit(Tables n, Object argu) {
+		Logger.debug("    call: tables");
+		Object _ret = null;
+		// collect all table names
+		n.f0.accept(this, argu);
+		n.f1.accept(this, argu);
+		Logger.debug("    return: tables");
+		return _ret;
+	}
+
+	/**
+	 * f0 -> Name() f1 -> [ <AS> Name() ]
+	 */
+	public Object visit(Table n, Object argu) {
+		Object _ret = null;
+		n.f0.accept(this, argu);
+		n.f1.accept(this, argu);
+		return _ret;
 	}
 
 	/**
@@ -88,7 +112,8 @@ public class AlgebraVisitor extends ObjectDepthFirst {
 		Logger.debug("        call: name");
 		Object _ret = null;
 		_ret = n.f0.accept(this, argu);
-		_ret = names.add(n.f0.toString());
+		((List<String>) argu).add(n.f0.toString());
+		_ret = n.f0.toString();
 		Logger.debug("        return: name");
 		return _ret;
 	}

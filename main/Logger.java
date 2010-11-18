@@ -5,6 +5,6 @@ public class Logger {
 
 	static public void debug(String msg){
 		if (debug)
-			System.out.println(msg + "\n");
+			System.out.println(msg);
 	}
 }

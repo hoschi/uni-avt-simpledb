@@ -1,13 +1,15 @@
 package relationenalgebra;
 
+import java.util.List;
+
 public class Projection implements IOneChildNode {
 	
-	private String[] columnnames;
+	private List<String> columnnames;
 	
 	private ITreeNode child;
 
-	public Projection(String[] columnnames) {
-		this.columnnames = columnnames;
+	public Projection(List<String> columns) {
+		this.columnnames = columns;
 	}
 
 	@Override

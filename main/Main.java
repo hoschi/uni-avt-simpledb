@@ -21,8 +21,8 @@ public static final String KUNDENDB = "db";
 
 	  public static void main(String[] args){
 		  Logger.debug = true;
-		  Logger.debug("test");
-		  Main.sqlToRelationenAlgebra("select mycol from mytable, myother");
+		  Logger.debug("DEBUGGING IS ENABLED");
+		  Main.sqlToRelationenAlgebra("select mycol1, mycol2 from mytable, myother");
 		  //Main.readFile(args[1]);
 	  }
 		
@@ -60,7 +60,8 @@ public static final String KUNDENDB = "db";
 			 new SimpleSQLParser(
 			 new StringReader(simpleSQL));
 		parser.setDebugALL(true);
-		try{ CompilationUnit cu = 
+		CompilationUnit cu = null;
+		try{  cu = 
 			parser.CompilationUnit();
 		ObjectDepthFirst v = new ObjectDepthFirst();
 		cu.accept(v,null);
@@ -69,7 +70,7 @@ public static final String KUNDENDB = "db";
 				return null;
 			}
 
-		return null;
+		return (ITreeNode) cu.accept(new AlgebraVisitor(), null);
 	}
 	
 	

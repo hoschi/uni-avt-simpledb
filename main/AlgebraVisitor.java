@@ -1,6 +1,7 @@
 package main;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import parser.syntaxtree.CompilationUnit;
@@ -11,8 +12,10 @@ import parser.syntaxtree.Query;
 import parser.syntaxtree.Table;
 import parser.syntaxtree.Tables;
 import parser.visitor.ObjectDepthFirst;
+import relationenalgebra.CrossProduct;
 import relationenalgebra.ITreeNode;
 import relationenalgebra.Projection;
+import relationenalgebra.Relation;
 import relationenalgebra.Selection;
 
 public class AlgebraVisitor extends ObjectDepthFirst {
@@ -38,7 +41,6 @@ public class AlgebraVisitor extends ObjectDepthFirst {
 		// get column names
 		List<String> columns = new ArrayList<String>();
 		n.f1.accept(this, columns);
-			
 
 		// get tables
 		ITreeNode tables = (ITreeNode) n.f3.accept(this, argu);
@@ -62,10 +64,35 @@ public class AlgebraVisitor extends ObjectDepthFirst {
 	 */
 	public Object visit(Tables n, Object argu) {
 		Logger.debug("    call: tables");
-		Object _ret = null;
 		// collect all table names
-		n.f0.accept(this, argu);
-		n.f1.accept(this, argu);
+		List<String> tables = new ArrayList<String>();
+		n.f0.accept(this, tables);
+		n.f1.accept(this, tables);
+
+		ITreeNode _ret = null;
+		if (tables.isEmpty() == false) {
+			if (tables.size() == 1) {
+				_ret = new Relation(tables.get(0));
+			} else { // min 2 names -> min one cross product
+				Iterator<String> iter = tables.iterator();
+				CrossProduct root = new CrossProduct(new Relation(iter.next()));
+				CrossProduct current = root;
+				while (iter.hasNext()) {
+					String name = iter.next();
+					if (iter.hasNext()) {
+						// node
+						CrossProduct node = new CrossProduct(new Relation(name));
+						current.setSecondChild(node);
+						current = node;
+					} else {
+						// leaf
+						current.setSecondChild(new Relation(name));
+					}
+				}
+				_ret = root;
+			}
+		}
+
 		Logger.debug("    return: tables");
 		return _ret;
 	}
@@ -74,9 +101,11 @@ public class AlgebraVisitor extends ObjectDepthFirst {
 	 * f0 -> Name() f1 -> [ <AS> Name() ]
 	 */
 	public Object visit(Table n, Object argu) {
+		Logger.debug("      call: table");
 		Object _ret = null;
 		n.f0.accept(this, argu);
 		n.f1.accept(this, argu);
+		Logger.debug("      call: table");
 		return _ret;
 	}
 

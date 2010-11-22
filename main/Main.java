@@ -22,7 +22,11 @@ public static final String KUNDENDB = "db";
 	  public static void main(String[] args){
 		  Logger.debug = true;
 		  Logger.debug("DEBUGGING IS ENABLED");
-		  Main.sqlToRelationenAlgebra("select mycol1, mycol2 from table1, table2, table3");
+		  Main.sqlToRelationenAlgebra("select mycol1, mycol2 " +
+		  		"from table1, table2, table3 " +
+		  		"where table1.ID = table2.fkOne " +
+		  		"and table1.ID = table3.fkTwo " +
+		  		"or table1.ID = table3.fkTwo");
 		  //Main.readFile(args[1]);
 	  }
 		

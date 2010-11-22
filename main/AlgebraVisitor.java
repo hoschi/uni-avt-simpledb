@@ -4,13 +4,18 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import parser.syntaxtree.AndExpression;
 import parser.syntaxtree.CompilationUnit;
+import parser.syntaxtree.EqualityExpression;
 import parser.syntaxtree.Item;
 import parser.syntaxtree.Items;
 import parser.syntaxtree.Name;
+import parser.syntaxtree.OrExpression;
+import parser.syntaxtree.PrimaryExpression;
 import parser.syntaxtree.Query;
 import parser.syntaxtree.Table;
 import parser.syntaxtree.Tables;
+import parser.syntaxtree.Where;
 import parser.visitor.ObjectDepthFirst;
 import relationenalgebra.CrossProduct;
 import relationenalgebra.ITreeNode;
@@ -57,6 +62,107 @@ public class AlgebraVisitor extends ObjectDepthFirst {
 		}
 		Logger.debug("  return: query");
 		return projection;
+	}
+
+	/**
+	 * f0 -> <WHERE> f1 -> AndExpression()
+	 */
+	public Object visit(Where n, Object argu) {
+		Logger.debug("    call: where");
+		relationenalgebra.AndExpression expr = (relationenalgebra.AndExpression) n.f1
+				.accept(this, argu);
+		Selection selection = new Selection(expr);
+		Logger.debug("    return: where");
+		return selection;
+	}
+
+	/**
+	 * f0 -> OrExpression() f1 -> ( <AND> OrExpression() )*
+	 */
+	public Object visit(AndExpression n, Object argu) {
+		Logger.debug("      call: AndExpression");
+		List<relationenalgebra.OrExpression> exprs = new ArrayList<relationenalgebra.OrExpression>();
+		n.f0.accept(this, exprs);
+		n.f1.accept(this, exprs);
+		relationenalgebra.AndExpression and = new relationenalgebra.AndExpression(
+				exprs);
+		Logger.debug("      return: AndExpression");
+		return and;
+	}
+
+	/**
+	 * f0 -> [ "(" ] f1 -> EqualityExpression() f2 -> ( <OR>
+	 * EqualityExpression() )* f3 -> [ ")" ]
+	 */
+	public Object visit(OrExpression n, Object argu) {
+		Logger.debug("        call: OrExpression");
+		Object _ret = null;
+		List<relationenalgebra.EqualityExpression> exprs = new ArrayList<relationenalgebra.EqualityExpression>();
+		n.f1.accept(this, exprs);
+		n.f2.accept(this, exprs);
+		relationenalgebra.OrExpression or = new relationenalgebra.OrExpression(
+				exprs);
+		((List<relationenalgebra.OrExpression>) argu).add(or);
+		Logger.debug("        return: OrExpression");
+		return _ret;
+	}
+
+	/**
+	 * f0 -> PrimaryExpression() f1 -> [ ( "=" | "!=" | <LT> | <GT> | <LE> |
+	 * <GE> ) PrimaryExpression() ]
+	 * 
+	 * "lefthandside" und "righthandside"
+	 */
+	public Object visit(EqualityExpression n, Object argu) {
+		Logger.debug("          call: EqualityExpression");
+		Object _ret = null;
+		n.f0.accept(this, argu);
+		n.f1.accept(this, argu);
+		///////////////////////////////
+		///////////////////////////////
+		///////////////////////////////
+		///////////////////////////////
+		///////////////////////////////
+		///////////////////////////////
+		///////////////////////////////
+		///////////////////////////////
+		///////////////////////////////
+		///////////////////////////////
+		///////////////////////////////
+		///////////////////////////////
+		///////////////////////////////
+		///////////////////////////////
+		// TODO go further
+		///////////////////////////////
+		///////////////////////////////
+		///////////////////////////////
+		///////////////////////////////
+		///////////////////////////////
+		///////////////////////////////
+		///////////////////////////////
+		///////////////////////////////
+		///////////////////////////////
+		///////////////////////////////
+		///////////////////////////////
+		///////////////////////////////
+		///////////////////////////////
+		///////////////////////////////
+		relationenalgebra.EqualityExpression eq = 
+			new relationenalgebra.EqualityExpression(null, null, null);
+		((List<relationenalgebra.EqualityExpression>) argu).add(eq);
+		Logger.debug("          return: EqualityExpression");
+		return _ret;
+	}
+
+	/**
+	 * f0 -> <IDENTIFIER> [ "." <IDENTIFIER> ] | LiteralExpression()
+	 */
+	public Object visit(PrimaryExpression n, Object argu) {
+		Object _ret = null;
+		Logger.debug("            call: PrimaryExpression");
+		n.f0.accept(this, argu);
+		Logger.debug("            return: PrimaryExpression");
+		return _ret;
 	}
 
 	/**

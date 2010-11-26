@@ -24,9 +24,9 @@ public static final String KUNDENDB = "db";
 		  Logger.debug("DEBUGGING IS ENABLED");
 		  Main.sqlToRelationenAlgebra("select mycol1, mycol2 " +
 		  		"from table1, table2, table3 " +
-		  		"where table1.ID = table2.fkOne " +
-		  		"and table1.ID = table3.fkTwo " +
-		  		"or table1.ID = table3.fkTwo");
+		  		"where table1.ID = true " +
+		  		"and table1.ID > table3.fkTwo " +
+		  		"or table1.ID != table3.fkTwo");
 		  //Main.readFile(args[1]);
 	  }
 		

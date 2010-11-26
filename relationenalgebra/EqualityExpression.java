@@ -51,5 +51,17 @@ public class EqualityExpression implements IBooleanExpression {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	@Override
+	public String toString() {
+		String s = "";
+		if (expr1 != null && expr1.getValue() != null)
+			s += expr1.getValue();
+		if (this.operator != null)
+			s += " " + this.operator + " ";
+		if (expr2 != null && expr2.getValue() != null)
+			s += expr2.getValue();
+		return s;
+	}
 	
 }

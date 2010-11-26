@@ -1,6 +1,7 @@
 package main;
 
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 
@@ -10,6 +11,9 @@ import parser.syntaxtree.EqualityExpression;
 import parser.syntaxtree.Item;
 import parser.syntaxtree.Items;
 import parser.syntaxtree.Name;
+import parser.syntaxtree.Node;
+import parser.syntaxtree.NodeSequence;
+import parser.syntaxtree.NodeToken;
 import parser.syntaxtree.OrExpression;
 import parser.syntaxtree.PrimaryExpression;
 import parser.syntaxtree.Query;
@@ -18,6 +22,7 @@ import parser.syntaxtree.Tables;
 import parser.syntaxtree.Where;
 import parser.visitor.ObjectDepthFirst;
 import relationenalgebra.CrossProduct;
+import relationenalgebra.EqualityExpression.Operator;
 import relationenalgebra.ITreeNode;
 import relationenalgebra.Projection;
 import relationenalgebra.Relation;
@@ -116,40 +121,17 @@ public class AlgebraVisitor extends ObjectDepthFirst {
 	public Object visit(EqualityExpression n, Object argu) {
 		Logger.debug("          call: EqualityExpression");
 		Object _ret = null;
-		n.f0.accept(this, argu);
-		n.f1.accept(this, argu);
-		///////////////////////////////
-		///////////////////////////////
-		///////////////////////////////
-		///////////////////////////////
-		///////////////////////////////
-		///////////////////////////////
-		///////////////////////////////
-		///////////////////////////////
-		///////////////////////////////
-		///////////////////////////////
-		///////////////////////////////
-		///////////////////////////////
-		///////////////////////////////
-		///////////////////////////////
-		// TODO go further
-		///////////////////////////////
-		///////////////////////////////
-		///////////////////////////////
-		///////////////////////////////
-		///////////////////////////////
-		///////////////////////////////
-		///////////////////////////////
-		///////////////////////////////
-		///////////////////////////////
-		///////////////////////////////
-		///////////////////////////////
-		///////////////////////////////
-		///////////////////////////////
-		///////////////////////////////
-		relationenalgebra.EqualityExpression eq = 
-			new relationenalgebra.EqualityExpression(null, null, null);
+		List<Object> stuff = new ArrayList<Object>();
+		n.f0.accept(this, stuff);
+		n.f1.accept(this, stuff);
+
+		relationenalgebra.EqualityExpression eq = new relationenalgebra.EqualityExpression(
+				relationenalgebra.EqualityExpression.Operator.parseOperator(stuff
+						.get(1).toString()),
+				(relationenalgebra.PrimaryExpression) stuff.get(0),
+				(relationenalgebra.PrimaryExpression) stuff.get(2));
 		((List<relationenalgebra.EqualityExpression>) argu).add(eq);
+		Logger.debug("          ----->" + eq.toString());
 		Logger.debug("          return: EqualityExpression");
 		return _ret;
 	}
@@ -160,8 +142,40 @@ public class AlgebraVisitor extends ObjectDepthFirst {
 	public Object visit(PrimaryExpression n, Object argu) {
 		Object _ret = null;
 		Logger.debug("            call: PrimaryExpression");
-		n.f0.accept(this, argu);
+		List<Object> strings = new ArrayList<Object>();
+		n.f0.accept(this, strings);
+		String value = "";
+		boolean isConstant = false;
+		if (!strings.isEmpty()) {
+			if (strings.size() == 2) {
+				isConstant = true;
+				value = strings.get(0).toString();
+			} else {
+				value = strings.get(0).toString() + strings.get(1).toString()
+						+ strings.get(2).toString();
+			}
+
+		}
+		((List<Object>) argu).add(new relationenalgebra.PrimaryExpression(
+				isConstant, value));
+
 		Logger.debug("            return: PrimaryExpression");
+		return _ret;
+	}
+
+	public Object visit(NodeToken n, Object argu) {
+		return n.toString();
+	}
+
+	public Object visit(NodeSequence n, Object argu) {
+		Object _ret = null;
+		int _count = 0;
+		for (Enumeration e = n.elements(); e.hasMoreElements();) {
+			Object o = ((Node) e.nextElement()).accept(this, argu);
+			if (argu instanceof List<?>)
+				((List<Object>) argu).add(o);
+			_count++;
+		}
 		return _ret;
 	}
 

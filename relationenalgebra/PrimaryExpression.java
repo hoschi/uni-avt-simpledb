@@ -23,4 +23,12 @@ public class PrimaryExpression implements IBooleanExpression {
 		return null;
 	}
 
+	public boolean isConstant() {
+		return constant;
+	}
+
+	public String getValue() {
+		return value;
+	}
+
 }

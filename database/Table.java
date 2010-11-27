@@ -1,8 +1,15 @@
 package database;
 
-import java.util.List;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import relationenalgebra.*;
+import java.util.List;
+
+import relationenalgebra.AndExpression;
 
 public class Table implements Serializable {
 
@@ -15,22 +22,27 @@ public class Table implements Serializable {
 	protected List<List<String>> rows;
 
 	/**
-	 * Loads a Table from dir by its name.
-	 */
-	public static Table loadTable(String name) {
-		// TODO implement this
-		return null;
-	}
-
-	/**
-	 *  Writes the actual instance to the filesystem.
+	 * Writes the actual instance to the filesystem.
+	 * @throws IOException 
 	 */
 	public void write() {
-		// TODO implement this
+		try {
+			FileOutputStream fos = new FileOutputStream(FileSystemDatabase.getInstance()
+					.getDbDirectory() + java.io.File.separator + this.name);
+			ObjectOutputStream oos = new ObjectOutputStream(fos);
+			oos.writeObject(this);
+			oos.close();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	/**
-	 *  Returns one row from privat row repository.
+	 * Returns one row from privat row repository.
 	 */
 	public List<String> getRow(int number) {
 		// TODO implement this

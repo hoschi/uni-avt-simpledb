@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 
@@ -12,19 +13,19 @@ import parser.gene.SimpleSQLParser;
 import parser.syntaxtree.CompilationUnit;
 import parser.visitor.ObjectDepthFirst;
 import relationenalgebra.ITreeNode;
-import database.InMemoryRepo;
-import database.Table;
+import database.FileSystemDatabase;
 
 public class Main {
 
 	// Verzeichnis der Buchversandsdatenbank
 	public static final String KUNDENDB = "db";
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException,
+			ClassNotFoundException {
 		Logger.debug = true;
 		Logger.debug("DEBUGGING IS ENABLED");
 		Logger.debug("load database");
-		InMemoryRepo.getInstance().setDbDirectory(KUNDENDB);
+		FileSystemDatabase.getInstance().setDbDirectory(KUNDENDB);
 		Logger.debug("sql -> relational algebra");
 		Main.sqlToRelationenAlgebra("select mycol1, mycol2 "
 				+ "from table1, table2, table3 " + "where table1.ID = true "
@@ -33,25 +34,11 @@ public class Main {
 		// Main.readFile(args[1]);
 	}
 
-	public static void printKundenDB() {
+	public static void printKundenDB() throws IOException,
+			ClassNotFoundException {
 		File dir = new File(Main.KUNDENDB);
-
-		File[] children = dir.listFiles();
-		if (children == null) {
-			// Either dir does not exist or is not a directory
-			System.out.println("no files");
-		} else {
-			for (int i = 0; i < children.length; i++) {
-				// Get filename of file or directory
-				File file = children[i];
-				if (!file.isDirectory()) {
-					Table t = Table.loadTable(file.getAbsolutePath()
-							+ File.separator + file.getName());
-					if (t != null)
-						System.out.print(t);
-				}
-			}
-		}
+		FileSystemDatabase.getInstance().setDbDirectory(KUNDENDB);
+		FileSystemDatabase.getInstance().printDb();
 	}
 
 	public static void createKundenDB() {

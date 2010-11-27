@@ -260,8 +260,12 @@ public class AlgebraVisitor extends ObjectDepthFirst {
 		Logger.debug("        call: name");
 		Object _ret = null;
 		_ret = n.f0.accept(this, argu);
-		((List<String>) argu).add(n.f0.toString());
-		_ret = n.f0.toString();
+		if (n != null && n.f0 != null) {
+			if (argu != null)
+				((List<String>) argu).add(n.f0.toString());
+			
+			_ret = n.f0.toString();
+		}
 		Logger.debug("        return: name");
 		return _ret;
 	}

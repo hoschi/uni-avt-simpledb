@@ -27,10 +27,7 @@ public class Main {
 		Logger.debug("load database");
 		FileSystemDatabase.getInstance().setDbDirectory(KUNDENDB);
 		Logger.debug("sql -> relational algebra");
-		Main.sqlToRelationenAlgebra("select mycol1, mycol2 "
-				+ "from table1, table2, table3 " + "where table1.ID = true "
-				+ "and table1.ID > table3.fkTwo "
-				+ "or table1.ID != table3.fkTwo");
+		Main.sqlToRelationenAlgebra("create table Buch (ID varchar , Titel varchar);");
 		// Main.readFile(args[1]);
 	}
 

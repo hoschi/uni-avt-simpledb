@@ -1,8 +1,9 @@
 package database;
 
-import java.io.FileNotFoundException;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.List;
@@ -11,114 +12,100 @@ import relationenalgebra.AndExpression;
 
 public class Table implements Serializable {
 
-	static final long serialVersionUID = 1234;
-	protected String name;
-	protected String alias;
-	protected List<String> columnNames;
-	protected List<String[]> rows;
+    static final long serialVersionUID = 1234;
+    protected static String databaseDirectory;
+    protected String name;
+    protected String alias;
+    protected boolean drop;
+    protected List<String> columnNames;
+    protected List<List<String>> rows;
 
-	public Table(String name) {
-		super();
-		this.name = name;
-	}
+    private static File tableNameToFile(String name) {
+        File dir = new File(databaseDirectory);
+        String extension = ".tbl";
+        return new File(dir, name + extension);
+    }
 
-	public Table(String name, List<String> columns) {
-		super();
-		this.name = name;
-		this.columnNames = columns;
-	}
+    /**
+     * Loads a Table from dir by its name.
+     */
+    public static Table loadTable(String name) {
+        try {
+            ObjectInputStream stream = new ObjectInputStream(
+                    new FileInputStream(tableNameToFile(name)));
+            Object obj = stream.readObject();
+            stream.close();
+            return (Table)obj;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-	/**
-	 * Writes the actual instance to the filesystem.
-	 * 
-	 * @throws IOException
-	 */
-	public void write() {
-		try {
-			FileOutputStream fos = new FileOutputStream(FileSystemDatabase
-					.getInstance().getDbDirectory()
-					+ java.io.File.separator
-					+ this.name);
-			ObjectOutputStream oos = new ObjectOutputStream(fos);
-			oos.writeObject(this);
-			oos.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+    /**
+     *  Writes the actual instance to the filesystem.
+     */
+    public void write() {
+        try {
+            ObjectOutputStream stream = new ObjectOutputStream(
+                    new FileOutputStream(tableNameToFile(name)));
+            stream.writeObject(this);
+            stream.close();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-	/**
-	 * Returns one row from privat row repository.
-	 */
-	public List<String> getRow(int number) {
-		// TODO implement this
-		return null;
-	}
+    /**
+     *  Returns one row from privat row repository.
+     */
+    public List<String> getRow(int number) {
+        // TODO implement this
+        return null;
+    }
 
-	public void addRow(List<String> names) {
-		// TODO implement this
-	}
+    public void addRow(List<String> names) {
+        // TODO implement this
+    }
 
-	public void deleteRow(int number) {
-		// TODO implement this
-	}
+    public void deleteRow(int number) {
+        // TODO implement this
+    }
 
-	public Table projectTo(List<String> param) {
-		// TODO implement this
-		return null;
-	}
+    public Table projectTo(List<String> param) {
+        // TODO implement this
+        return null;
+    }
 
-	public Table select(AndExpression exp) {
-		// TODO implement this
-		return null;
-	}
+    public Table select(AndExpression exp) {
+        // TODO implement this
+        return null;
+    }
 
-	public Table join(Table table, AndExpression exp) {
-		// TODO implement this
-		return null;
-	}
+    public Table join(Table table, AndExpression exp) {
+        // TODO implement this
+        return null;
+    }
 
-	public Table cross(Table table) {
-		// TODO implement this
-		return null;
-	}
+    public Table cross(Table table) {
+        // TODO implement this
+        return null;
+    }
 
-	public String toString() {
-		// TODO implement this
-		String s = "table '" + this.name + "'\n\tcolumns: '";
-		for (String c : this.columnNames) {
-			s += c + ", ";
-		}
-		s += "'\n\trows:\n";
+    public String toString() {
+        // TODO implement this
+        String s = "table '" + this.name + "'\ncolumns '";
+        for (String c : this.columnNames) {
+            s += c + "\t";
+        }
+        s += "'\nrows\n";
 
-		if (this.rows != null) {
-			for (String[] row : this.rows) {
-				s += "\t\t";
-				for (String value : row) {
-					s += value + "\t";
-				}
-				s += "\n";
-			}
-		}
-		return s;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getAlias() {
-		return alias;
-	}
-
-	public void setAlias(String alias) {
-		this.alias = alias;
-	}
+        for (List<String> row : this.rows) {
+            for (String value : row) {
+                s += value + "\t";
+            }
+            s += "\n";
+        }
+        return s;
+    }
 
 }

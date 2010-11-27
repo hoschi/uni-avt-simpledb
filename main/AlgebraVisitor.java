@@ -51,14 +51,12 @@ public class AlgebraVisitor extends ObjectDepthFirst {
 	 * ColumnDefinition() )* f6 -> ")"
 	 */
 	public Object visit(CreateTable n, Object argu) {
-		Object _ret = null;
 		String name = (String) n.f2.accept(this, argu);
 		List<String> columns = new ArrayList<String>();
 		n.f4.accept(this, columns);
 		n.f5.accept(this, columns);
-		database.Table t = new database.Table(name, columns);
-		FileSystemDatabase.getInstance().addTable(t);
-		return _ret;
+		relationenalgebra.CreateTable op = new relationenalgebra.CreateTable(name, columns); 
+		return op;
 	}
 	
 	/**

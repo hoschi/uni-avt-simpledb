@@ -27,7 +27,7 @@ public class Main {
 		Logger.debug("load database");
 		FileSystemDatabase.getInstance().setDbDirectory(KUNDENDB);
 		Logger.debug("sql -> relational algebra");
-		Main.sqlToRelationenAlgebra("");
+		Main.sqlToRelationenAlgebra("create table Buch (ID varchar , Titel varchar);");
 		// Main.readFile(args[1]);
 		Main.printKundenDB();
 	}

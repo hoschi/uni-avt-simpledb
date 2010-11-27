@@ -13,6 +13,7 @@ import parser.gene.SimpleSQLParser;
 import parser.syntaxtree.CompilationUnit;
 import parser.visitor.ObjectDepthFirst;
 import relationenalgebra.ITreeNode;
+import relationenalgebra.TableOperation;
 import database.FileSystemDatabase;
 
 public class Main {
@@ -26,15 +27,14 @@ public class Main {
 		Logger.debug("DEBUGGING IS ENABLED");
 		Logger.debug("load database");
 		FileSystemDatabase.getInstance().setDbDirectory(KUNDENDB);
-		Logger.debug("sql -> relational algebra");
-		Main.sqlToRelationenAlgebra("create table Buch (ID varchar , Titel varchar);");
-		// Main.readFile(args[1]);
+		Logger.debug("execute sql");
+		//Main.execute("create table Buch (ID varchar , Titel varchar);");
+		Main.readFile("kundendb.txt");
 		Main.printKundenDB();
 	}
 
 	public static void printKundenDB() throws IOException,
 			ClassNotFoundException {
-		File dir = new File(Main.KUNDENDB);
 		FileSystemDatabase.getInstance().setDbDirectory(KUNDENDB);
 		FileSystemDatabase.getInstance().printDb();
 	}
@@ -44,8 +44,8 @@ public class Main {
 	}
 
 	public static void execute(String simpleSQL) {
-		// TODO Anfrage �bersetzen
-		// TODO Anfrage ausf�hren
+		ITreeNode plan = Main.sqlToRelationenAlgebra(simpleSQL);
+		Main.executePlan(plan);
 	}
 
 	public static ITreeNode sqlToRelationenAlgebra(String simpleSQL) {
@@ -66,8 +66,8 @@ public class Main {
 	}
 
 	private static void executePlan(ITreeNode plan) {
-		// TODO
-
+		if (plan instanceof TableOperation)
+			((TableOperation)plan).execute();
 	}
 
 	private static void readFile(String filename) {

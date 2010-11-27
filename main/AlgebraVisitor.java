@@ -5,8 +5,12 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 
+import database.FileSystemDatabase;
+
 import parser.syntaxtree.AndExpression;
+import parser.syntaxtree.ColumnDefinition;
 import parser.syntaxtree.CompilationUnit;
+import parser.syntaxtree.CreateTable;
 import parser.syntaxtree.EqualityExpression;
 import parser.syntaxtree.Item;
 import parser.syntaxtree.Items;
@@ -39,6 +43,34 @@ public class AlgebraVisitor extends ObjectDepthFirst {
 		Logger.debug("return: cu");
 		return _ret;
 	}
+
+	/**
+	 * f0 -> <CREATE> f1 ->
+	 * <TABLE>
+	 * f2 -> Name() f3 -> "(" f4 -> ColumnDefinition() f5 -> ( ","
+	 * ColumnDefinition() )* f6 -> ")"
+	 */
+	public Object visit(CreateTable n, Object argu) {
+		Object _ret = null;
+		String name = (String) n.f2.accept(this, argu);
+		List<String> columns = new ArrayList<String>();
+		n.f4.accept(this, columns);
+		n.f5.accept(this, columns);
+		database.Table t = new database.Table(name, columns);
+		FileSystemDatabase.getInstance().addTable(t);
+		return _ret;
+	}
+	
+	/**
+	    * f0 -> Name()
+	    * f1 -> DataType()
+	    */
+	   public Object visit(ColumnDefinition n, Object argu) {
+	      Object _ret=null;
+	      n.f0.accept(this, argu);
+	      n.f1.accept(this, null);
+	      return _ret;
+	   }
 
 	/**
 	 * f0 -> <SELECT> f1 -> Items() f2 -> <FROM> f3 -> Tables() f4 -> [ Where()
@@ -171,7 +203,7 @@ public class AlgebraVisitor extends ObjectDepthFirst {
 		int _count = 0;
 		for (Enumeration e = n.elements(); e.hasMoreElements();) {
 			Object o = ((Node) e.nextElement()).accept(this, argu);
-			if (argu instanceof List<?>)
+			if (argu instanceof List<?> && o != null && o.toString() != ",")
 				((List<Object>) argu).add(o);
 			_count++;
 		}
@@ -263,7 +295,7 @@ public class AlgebraVisitor extends ObjectDepthFirst {
 		if (n != null && n.f0 != null) {
 			if (argu != null)
 				((List<String>) argu).add(n.f0.toString());
-			
+
 			_ret = n.f0.toString();
 		}
 		Logger.debug("        return: name");

@@ -1,10 +1,8 @@
 package database;
 
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.List;
@@ -14,21 +12,33 @@ import relationenalgebra.AndExpression;
 public class Table implements Serializable {
 
 	static final long serialVersionUID = 1234;
-	protected static String databaseDirectory;
 	protected String name;
 	protected String alias;
-	protected boolean drop;
 	protected List<String> columnNames;
-	protected List<List<String>> rows;
+	protected List<String[]> rows;
+
+	public Table(String name) {
+		super();
+		this.name = name;
+	}
+
+	public Table(String name, List<String> columns) {
+		super();
+		this.name = name;
+		this.columnNames = columns;
+	}
 
 	/**
 	 * Writes the actual instance to the filesystem.
-	 * @throws IOException 
+	 * 
+	 * @throws IOException
 	 */
 	public void write() {
 		try {
-			FileOutputStream fos = new FileOutputStream(FileSystemDatabase.getInstance()
-					.getDbDirectory() + java.io.File.separator + this.name);
+			FileOutputStream fos = new FileOutputStream(FileSystemDatabase
+					.getInstance().getDbDirectory()
+					+ java.io.File.separator
+					+ this.name);
 			ObjectOutputStream oos = new ObjectOutputStream(fos);
 			oos.writeObject(this);
 			oos.close();
@@ -79,19 +89,38 @@ public class Table implements Serializable {
 
 	public String toString() {
 		// TODO implement this
-		String s = "table '" + this.name + "'\ncolumns '";
+		String s = "table '" + this.name + "'\n\tcolumns: '";
 		for (String c : this.columnNames) {
-			s += c + "\t";
+			s += c + ", ";
 		}
-		s += "'\nrows\n";
+		s += "'\n\trows:\n";
 
-		for (List<String> row : this.rows) {
-			for (String value : row) {
-				s += value + "\t";
+		if (this.rows != null) {
+			for (String[] row : this.rows) {
+				s += "\t\t";
+				for (String value : row) {
+					s += value + "\t";
+				}
+				s += "\n";
 			}
-			s += "\n";
 		}
 		return s;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getAlias() {
+		return alias;
+	}
+
+	public void setAlias(String alias) {
+		this.alias = alias;
 	}
 
 }

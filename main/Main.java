@@ -27,8 +27,9 @@ public class Main {
 		Logger.debug("load database");
 		FileSystemDatabase.getInstance().setDbDirectory(KUNDENDB);
 		Logger.debug("sql -> relational algebra");
-		Main.sqlToRelationenAlgebra("create table Buch (ID varchar , Titel varchar);");
+		Main.sqlToRelationenAlgebra("");
 		// Main.readFile(args[1]);
+		Main.printKundenDB();
 	}
 
 	public static void printKundenDB() throws IOException,

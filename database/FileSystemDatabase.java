@@ -30,11 +30,16 @@ public final class FileSystemDatabase {
 		return dbDirectory;
 	}
 
-	public void setDbDirectory(String dbDirectory) throws IOException,
-			ClassNotFoundException {
+	public void setDbDirectory(String dbDirectory) {
 		this.dbDirectory = dbDirectory;
 		tables = new HashMap<String, Table>();
 		File dir = new File(dbDirectory);
+		
+		if (!dir.isDirectory()) {
+			if (dir.isFile())
+				System.err.println(dbDirectory + "is a file, not a dir");
+			dir.mkdirs();
+		}
 
 		File[] children = dir.listFiles();
 		if (children == null) {
@@ -55,7 +60,7 @@ public final class FileSystemDatabase {
 		return this.tables.get(name);
 	}
 
-	public void addTable(Table t) throws IOException {
+	public void addTable(Table t) {
 		this.tables.put(t.name, t);
 		this.tables.put(t.alias, t);
 		t.write();
@@ -95,6 +100,7 @@ public final class FileSystemDatabase {
 
 	public void printDb() {
 		List<Table> printed = new ArrayList<Table>();
+		System.out.println("\n\n---> this is the database <---");
 		for (Table t : this.tables.values()) {
 			if (!printed.contains(t)) {
 				printed.add(t);

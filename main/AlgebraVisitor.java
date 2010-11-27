@@ -22,7 +22,6 @@ import parser.syntaxtree.Tables;
 import parser.syntaxtree.Where;
 import parser.visitor.ObjectDepthFirst;
 import relationenalgebra.CrossProduct;
-import relationenalgebra.EqualityExpression.Operator;
 import relationenalgebra.ITreeNode;
 import relationenalgebra.Projection;
 import relationenalgebra.Relation;

@@ -27,9 +27,10 @@ public class Main {
 		Logger.debug("DEBUGGING IS ENABLED");
 		Logger.debug("load database");
 		FileSystemDatabase.getInstance().setDbDirectory(KUNDENDB);
+		//Main.createKundenDB();
 		Logger.debug("execute sql");
-		//Main.execute("create table Buch (ID varchar , Titel varchar);");
-		Main.readFile("kundendb.txt");
+		Main.execute("select stern from myass");
+		//Main.readFile("sql.txt");
 		Main.printKundenDB();
 	}
 
@@ -40,6 +41,7 @@ public class Main {
 	}
 
 	public static void createKundenDB() {
+		Logger.debug("create kunden db");
 		Main.readFile("kundendb.txt");
 	}
 
@@ -51,7 +53,7 @@ public class Main {
 	public static ITreeNode sqlToRelationenAlgebra(String simpleSQL) {
 		SimpleSQLParser parser = new SimpleSQLParser(
 				new StringReader(simpleSQL));
-		parser.setDebugALL(true);
+		parser.setDebugALL(Logger.debug);
 		CompilationUnit cu = null;
 		try {
 			cu = parser.CompilationUnit();

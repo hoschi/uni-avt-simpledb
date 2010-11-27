@@ -6,6 +6,9 @@ import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 import relationenalgebra.AndExpression;
@@ -59,21 +62,80 @@ public class Table implements Serializable {
      *  Returns one row from privat row repository.
      */
     public List<String> getRow(int number) {
-        // TODO implement this
-        return null;
+        return Collections.unmodifiableList(rows.get(number));
     }
 
     public void addRow(List<String> names) {
-        // TODO implement this
+        if (names.size() != columnNames.size()) {
+            throw new IllegalArgumentException("bad row size");
+        }
+        rows.add(cloneList(names));
+    }
+
+    private static <T> List<T> cloneList(List<T> list) {
+        List<T> copy = new ArrayList<T>(list.size());
+        Collections.copy(copy, list);
+        return copy;
     }
 
     public void deleteRow(int number) {
-        // TODO implement this
+        rows.remove(number);
+    }
+
+    private int getColumnIndex(String name) {
+        for (int i = 0; i < columnNames.size(); i++) {
+            if (columnNames.get(i).equals(name)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private static List<List<String>> newRowsList() {
+        return new LinkedList<List<String>>();
     }
 
     public Table projectTo(List<String> param) {
-        // TODO implement this
-        return null;
+        // compute indices for projection
+        int[] projection = new int[param.size()];
+        for (int i = 0; i < projection.length; i++) {
+            int index = getColumnIndex(param.get(i));
+            if (index < 0) {
+                throw new IllegalArgumentException(
+                        "no column with name '"+param.get(i)+"'");
+            }
+            projection[i] = index;
+        }
+
+        // generate column names list
+        List<String> newColumnNames = new ArrayList<String>(projection.length);
+        for (int i = 0; i < projection.length; i++) {
+            newColumnNames.add(columnNames.get(projection[i]));
+        }
+
+        // generate new rows list
+        List<List<String>> newRows = newRowsList();
+        for (List<String> row : rows) {
+            List<String> projectedRow =
+                new ArrayList<String>(projection.length);
+            for (int i = 0; i < projection.length; i++) {
+                projectedRow.add(row.get(projection[i]));
+            }
+        }
+
+        return createAlteredClone(newColumnNames, newRows);
+    }
+
+    private Table createAlteredClone(
+            List<String> newColumnNames,
+            List<List<String>> newRows) {
+        Table result = new Table();
+        result.alias = this.alias;
+        result.columnNames = newColumnNames;
+        result.drop = false;
+        result.name = this.name;
+        result.rows = newRows;
+        return result;
     }
 
     public Table select(AndExpression exp) {

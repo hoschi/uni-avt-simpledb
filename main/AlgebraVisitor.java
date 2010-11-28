@@ -60,18 +60,13 @@ public class AlgebraVisitor extends ObjectDepthFirst {
 		// column names
 		List<String> list = new ArrayList<String>();
 		n.f3.accept(this, list);
-		List<String> columns = new ArrayList<String>();
-		for (String col : list) {
-			if (!columns.contains(col))
-				columns.add(col);
-		}
 
 		// values
 		List<String> values = new ArrayList<String>();
 		n.f6.accept(this, values);
 
 		relationenalgebra.Insert op = new relationenalgebra.Insert(name,
-				columns, values);
+				list, values);
 		Logger.debug("  return: insert");
 		return op;
 	}
@@ -81,10 +76,11 @@ public class AlgebraVisitor extends ObjectDepthFirst {
 	 */
 	public Object visit(ColumnNames n, Object argu) {
 		Logger.debug("    call: columnnames");
-		n.f0.accept(this, argu);
+		Object _ret;
+		_ret = n.f0.accept(this, argu);
 		n.f1.accept(this, argu);
 		Logger.debug("    return: columnnames");
-		return null;
+		return _ret;
 	}
 
 	/**
@@ -108,7 +104,9 @@ public class AlgebraVisitor extends ObjectDepthFirst {
 	public Object visit(CreateTable n, Object argu) {
 		String name = (String) n.f2.accept(this, argu);
 		List<String> columns = new ArrayList<String>();
-		n.f4.accept(this, columns);
+		String column = (String)n.f4.accept(this, columns);
+		if (column != null)
+			columns.add(column);
 		n.f5.accept(this, columns);
 		relationenalgebra.CreateTable op = new relationenalgebra.CreateTable(
 				name, columns);
@@ -120,8 +118,7 @@ public class AlgebraVisitor extends ObjectDepthFirst {
 	 */
 	public Object visit(ColumnDefinition n, Object argu) {
 		Object _ret = null;
-		n.f0.accept(this, argu);
-		n.f1.accept(this, null);
+		_ret = n.f0.accept(this, argu);
 		return _ret;
 	}
 

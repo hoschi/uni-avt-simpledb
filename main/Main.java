@@ -27,9 +27,9 @@ public class Main {
 		Logger.debug("DEBUGGING IS ENABLED");
 		Logger.debug("load database");
 		FileSystemDatabase.getInstance().setDbDirectory(KUNDENDB);
-		Main.createKundenDB();
+		//Main.createKundenDB();
 		Logger.debug("execute sql");
-		Main.execute("select Titel, blubb, gubbl from Buch_Autor, badguy, mymom where you=me and blu=gree or foo=bar");
+		Main.execute("select B.Titel, BA.id from Buch_Autor as BA, Buch as B where BA.Autorenname=\"Frank Schätzing\" and BA.B_ID=B.ID");
 		// Main.readFile("sql.txt");
 		Main.printKundenDB();
 		FileSystemDatabase.getInstance().persistDb();

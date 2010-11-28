@@ -54,8 +54,8 @@ public class AlgebraVisitor extends ObjectDepthFirst {
 	public Object visit(Insert n, Object argu) {
 		Logger.debug("  call: insert");
 		// table
-		
-		String name = (String)n.f2.accept(this, null);
+
+		String name = (String) n.f2.accept(this, null);
 
 		// column names
 		List<String> list = new ArrayList<String>();
@@ -65,8 +65,8 @@ public class AlgebraVisitor extends ObjectDepthFirst {
 		List<String> values = new ArrayList<String>();
 		n.f6.accept(this, values);
 
-		relationenalgebra.Insert op = new relationenalgebra.Insert(name,
-				list, values);
+		relationenalgebra.Insert op = new relationenalgebra.Insert(name, list,
+				values);
 		Logger.debug("  return: insert");
 		return op;
 	}
@@ -104,7 +104,7 @@ public class AlgebraVisitor extends ObjectDepthFirst {
 	public Object visit(CreateTable n, Object argu) {
 		String name = (String) n.f2.accept(this, argu);
 		List<String> columns = new ArrayList<String>();
-		String column = (String)n.f4.accept(this, columns);
+		String column = (String) n.f4.accept(this, columns);
 		if (column != null)
 			columns.add(column);
 		n.f5.accept(this, columns);
@@ -170,7 +170,7 @@ public class AlgebraVisitor extends ObjectDepthFirst {
 		List<relationenalgebra.OrExpression> exprs = new ArrayList<relationenalgebra.OrExpression>();
 		n.f0.accept(this, exprs);
 		n.f1.accept(this, exprs);
-		for(Object o : exprs){
+		for (Object o : exprs) {
 			if (o instanceof String)
 				exprs.remove(o);
 		}
@@ -190,7 +190,7 @@ public class AlgebraVisitor extends ObjectDepthFirst {
 		List<relationenalgebra.EqualityExpression> exprs = new ArrayList<relationenalgebra.EqualityExpression>();
 		n.f1.accept(this, exprs);
 		n.f2.accept(this, exprs);
-		for(Object o : exprs){
+		for (Object o : exprs) {
 			if (o instanceof String)
 				exprs.remove(o);
 		}
@@ -276,7 +276,7 @@ public class AlgebraVisitor extends ObjectDepthFirst {
 		Logger.debug("    call: tables");
 		// collect all table names
 		List<String> tables = new ArrayList<String>();
-		String table = (String)n.f0.accept(this, null);
+		String table = (String) n.f0.accept(this, null);
 		if (table != null)
 			tables.add(table);
 		n.f1.accept(this, tables);
@@ -328,9 +328,9 @@ public class AlgebraVisitor extends ObjectDepthFirst {
 	public Object visit(Items n, Object argu) {
 		Logger.debug("    call: items");
 		String name = null;
-		name = (String)n.f0.accept(this, argu);
+		name = (String) n.f0.accept(this, argu);
 		if (name != null)
-			((List<String>)argu).add(name);
+			((List<String>) argu).add(name);
 		n.f1.accept(this, argu);
 		Logger.debug("    return: items");
 		return null;
@@ -341,9 +341,13 @@ public class AlgebraVisitor extends ObjectDepthFirst {
 	 */
 	public Object visit(Item n, Object argu) {
 		Logger.debug("      call: item");
-		Object _ret = null;
-		_ret = n.f0.accept(this, argu);
-		n.f1.accept(this, argu);
+		String _ret = null;
+		List<String> list = new ArrayList<String>();
+		_ret = (String) n.f0.accept(this, null);
+		n.f1.accept(this, list);
+		if (!list.isEmpty()) {
+			_ret += "." + list.get(1);
+		}
 		Logger.debug("      return: item");
 		return _ret;
 	}

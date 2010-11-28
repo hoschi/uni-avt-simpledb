@@ -57,7 +57,7 @@ public class AlgebraVisitor extends ObjectDepthFirst {
 		Logger.debug("  call: insert");
 		// table
 
-		String name = (String) n.f2.accept(this, null);
+		Relation rel = (Relation) n.f2.accept(this, null);
 
 		// column names
 		List<String> list = new ArrayList<String>();
@@ -67,7 +67,7 @@ public class AlgebraVisitor extends ObjectDepthFirst {
 		List<String> values = new ArrayList<String>();
 		n.f6.accept(this, values);
 
-		relationenalgebra.Insert op = new relationenalgebra.Insert(name, list,
+		relationenalgebra.Insert op = new relationenalgebra.Insert(rel.getName(), list,
 				values);
 		Logger.debug("  return: insert");
 		return op;

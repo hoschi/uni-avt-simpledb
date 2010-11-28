@@ -87,7 +87,8 @@ public class Main {
 			// Read File Line By Line
 			while ((strLine = br.readLine()) != null) {
 				// Print the content on the console
-				Main.execute(strLine);
+				if (strLine != "\n")
+					Main.execute(strLine);
 			}
 			// Close the input stream
 			in.close();

@@ -66,12 +66,19 @@ public class Table implements Serializable {
     public Table(String name) {
         super();
         this.name = name;
+        this.setUp();
     }
 
     public Table(String name, List<String> columns) {
         super();
         this.name = name;
         this.columnNames = columns;
+        this.setUp();
+    }
+    
+    private void setUp() {
+    	this.rows = new LinkedList(new ArrayList<String>());
+    	this.drop = false;
     }
 
     /**
@@ -92,13 +99,7 @@ public class Table implements Serializable {
         if (names.size() != columnNames.size()) {
             throw new IllegalArgumentException("bad row size");
         }
-        rows.add(cloneList(names));
-    }
-
-    private static <T> List<T> cloneList(List<T> list) {
-        List<T> copy = new ArrayList<T>(list.size());
-        Collections.copy(copy, list);
-        return copy;
+        rows.add(new ArrayList(names));
     }
 
     public void deleteRow(int number) {
@@ -165,7 +166,7 @@ public class Table implements Serializable {
         for (int i = 0; i < rows.size(); i++) {
             vl.setCurrentRowIndex(this, i);
             if (evaluate(exp, vl)) {
-                newRows.add(cloneList(rows.get(i)));
+                newRows.add(new ArrayList(rows.get(i)));
             }
         }
 
@@ -263,7 +264,6 @@ public class Table implements Serializable {
     }
 
     public String toString() {
-        // TODO implement this
         String s = "table '" + this.name + "'\n\tcolumns: '";
         for (String c : this.columnNames) {
             s += c + ", ";

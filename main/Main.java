@@ -29,14 +29,14 @@ public class Main {
 		FileSystemDatabase.getInstance().setDbDirectory(KUNDENDB);
 		//Main.createKundenDB();
 		Logger.debug("execute sql");
-		Main.execute("select stern from myass");
+		Main.execute("select bla from blubb");
 		//Main.readFile("sql.txt");
 		Main.printKundenDB();
+		FileSystemDatabase.getInstance().persistDb();
 	}
 
 	public static void printKundenDB() throws IOException,
 			ClassNotFoundException {
-		FileSystemDatabase.getInstance().setDbDirectory(KUNDENDB);
 		FileSystemDatabase.getInstance().printDb();
 	}
 
@@ -92,7 +92,7 @@ public class Main {
 			// Close the input stream
 			in.close();
 		} catch (Exception e) {// Catch exception if any
-			System.err.println("Error: " + e.getMessage());
+			throw new RuntimeException(e);
 		}
 	}
 

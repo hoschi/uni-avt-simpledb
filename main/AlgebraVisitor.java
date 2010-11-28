@@ -9,11 +9,14 @@ import database.FileSystemDatabase;
 
 import parser.syntaxtree.AndExpression;
 import parser.syntaxtree.ColumnDefinition;
+import parser.syntaxtree.ColumnNames;
 import parser.syntaxtree.CompilationUnit;
 import parser.syntaxtree.CreateTable;
 import parser.syntaxtree.EqualityExpression;
+import parser.syntaxtree.Insert;
 import parser.syntaxtree.Item;
 import parser.syntaxtree.Items;
+import parser.syntaxtree.Literals;
 import parser.syntaxtree.Name;
 import parser.syntaxtree.Node;
 import parser.syntaxtree.NodeSequence;
@@ -45,6 +48,59 @@ public class AlgebraVisitor extends ObjectDepthFirst {
 	}
 
 	/**
+	 * f0 -> <INSERT> f1 -> <INTO> f2 -> Table() f3 -> [ "(" ColumnNames() ")" ]
+	 * f4 -> <VALUES> f5 -> "(" f6 -> Literals() f7 -> ")"
+	 */
+	public Object visit(Insert n, Object argu) {
+		Logger.debug("  call: insert");
+		// table
+		List<String> names = new ArrayList<String>();
+		n.f2.accept(this, names);
+		String name = names.get(0);
+
+		// column names
+		List<String> list = new ArrayList<String>();
+		n.f3.accept(this, list);
+		List<String> columns = new ArrayList<String>();
+		for (String col : list) {
+			if (!columns.contains(col))
+				columns.add(col);
+		}
+
+		// values
+		List<String> values = new ArrayList<String>();
+		n.f6.accept(this, values);
+
+		relationenalgebra.Insert op = new relationenalgebra.Insert(name,
+				columns, values);
+		Logger.debug("  return: insert");
+		return op;
+	}
+
+	/**
+	 * f0 -> Name() f1 -> ( "," Name() )*
+	 */
+	public Object visit(ColumnNames n, Object argu) {
+		Logger.debug("    call: columnnames");
+		n.f0.accept(this, argu);
+		n.f1.accept(this, argu);
+		Logger.debug("    return: columnnames");
+		return null;
+	}
+
+	/**
+	 * f0 -> <STRING_LITERAL> f1 -> ( "," <STRING_LITERAL> )*
+	 */
+	public Object visit(Literals n, Object argu) {
+		Object _ret = null;
+		Logger.debug("    call: values");
+		((List<Object>) argu).add(n.f0.toString());
+		n.f1.accept(this, argu);
+		Logger.debug("    return: values");
+		return _ret;
+	}
+
+	/**
 	 * f0 -> <CREATE> f1 ->
 	 * <TABLE>
 	 * f2 -> Name() f3 -> "(" f4 -> ColumnDefinition() f5 -> ( ","
@@ -55,20 +111,20 @@ public class AlgebraVisitor extends ObjectDepthFirst {
 		List<String> columns = new ArrayList<String>();
 		n.f4.accept(this, columns);
 		n.f5.accept(this, columns);
-		relationenalgebra.CreateTable op = new relationenalgebra.CreateTable(name, columns); 
+		relationenalgebra.CreateTable op = new relationenalgebra.CreateTable(
+				name, columns);
 		return op;
 	}
-	
+
 	/**
-	    * f0 -> Name()
-	    * f1 -> DataType()
-	    */
-	   public Object visit(ColumnDefinition n, Object argu) {
-	      Object _ret=null;
-	      n.f0.accept(this, argu);
-	      n.f1.accept(this, null);
-	      return _ret;
-	   }
+	 * f0 -> Name() f1 -> DataType()
+	 */
+	public Object visit(ColumnDefinition n, Object argu) {
+		Object _ret = null;
+		n.f0.accept(this, argu);
+		n.f1.accept(this, null);
+		return _ret;
+	}
 
 	/**
 	 * f0 -> <SELECT> f1 -> Items() f2 -> <FROM> f3 -> Tables() f4 -> [ Where()
@@ -201,7 +257,8 @@ public class AlgebraVisitor extends ObjectDepthFirst {
 		int _count = 0;
 		for (Enumeration e = n.elements(); e.hasMoreElements();) {
 			Object o = ((Node) e.nextElement()).accept(this, argu);
-			if (argu instanceof List<?> && o != null && o.toString() != ",")
+			if (argu instanceof List<?> && o != null && o.toString() != ","
+					&& o.toString() != "(" && o.toString() != ")")
 				((List<Object>) argu).add(o);
 			_count++;
 		}
@@ -293,8 +350,8 @@ public class AlgebraVisitor extends ObjectDepthFirst {
 		if (n != null && n.f0 != null) {
 			if (argu != null)
 				((List<String>) argu).add(n.f0.toString());
-
-			_ret = n.f0.toString();
+			else
+				_ret = n.f0.toString();
 		}
 		Logger.debug("        return: name");
 		return _ret;

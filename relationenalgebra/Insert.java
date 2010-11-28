@@ -2,22 +2,29 @@ package relationenalgebra;
 
 import java.util.List;
 
+import database.FileSystemDatabase;
 import database.Table;
 
 public class Insert extends TableOperation {
-	
+	protected String name;
 	protected List<String> columnNames;
 	protected List<String> values;
 
+	public Insert(String name, List<String> columns, List<String> values) {
+		this.name = name;
+		this.columnNames = columns;
+		this.values = values;
+	}
+
 	@Override
 	public void execute(Table table) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public Table execute() {
-		// TODO Auto-generated method stub
+		Table t = FileSystemDatabase.getInstance().getTable(this.name);
+		t.addRow(this.values);
+		
 		return null;
 	}
 

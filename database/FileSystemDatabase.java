@@ -59,12 +59,14 @@ public final class FileSystemDatabase {
 	}
 
 	public Table getTable(String name) {
-		return this.tables.get(name);
+		Table t = this.tables.get(name);
+		if (t == null)
+			throw new RuntimeException("table not found -> " + name);
+		return t;
 	}
 
 	public void addTable(Table t) {
-		this.tables.put(t.name, t);
-		this.tables.put(t.alias, t);
+		this.tables.put(t.getName(), t);
 		t.write();
 	}
 
@@ -78,7 +80,8 @@ public final class FileSystemDatabase {
 	public Table loadTable(String name) {
 		try {
 			ObjectInputStream stream = new ObjectInputStream(
-					new FileInputStream(this.dbDirectory + java.io.File.separator + name));
+					new FileInputStream(this.dbDirectory
+							+ java.io.File.separator + name));
 			Table t = (Table) stream.readObject();
 			stream.close();
 			this.addTable(t);
@@ -101,6 +104,13 @@ public final class FileSystemDatabase {
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	public void persistDb() {
+		for (Table t : this.tables.values()) {
+			t.write();
+		}
+
 	}
 
 	public void printDb() {

@@ -3,8 +3,10 @@ package database;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -34,7 +36,7 @@ public final class FileSystemDatabase {
 		this.dbDirectory = dbDirectory;
 		tables = new HashMap<String, Table>();
 		File dir = new File(dbDirectory);
-		
+
 		if (!dir.isDirectory()) {
 			if (dir.isFile())
 				System.err.println(dbDirectory + "is a file, not a dir");
@@ -50,7 +52,7 @@ public final class FileSystemDatabase {
 				// Get filename of file or directory
 				File file = children[i];
 				if (!file.isDirectory()) {
-					FileSystemDatabase.getInstance().loadTable(file.getName());
+					this.loadTable(file.getName());
 				}
 			}
 		}
@@ -72,27 +74,33 @@ public final class FileSystemDatabase {
 
 	/**
 	 * Loads a Table from dir by its name.
-	 * 
-	 * @throws IOException
-	 * @throws ClassNotFoundException
 	 */
 	public Table loadTable(String name) {
-		Table t = null;
 		try {
-			FileInputStream fis = new FileInputStream(this.dbDirectory
-					+ java.io.File.separator + name);
-			ObjectInputStream ois = new ObjectInputStream(fis);
-			t = (Table) ois.readObject();
-			ois.close();
+			ObjectInputStream stream = new ObjectInputStream(
+					new FileInputStream(this.dbDirectory + java.io.File.separator + name));
+			Table t = (Table) stream.readObject();
+			stream.close();
 			this.addTable(t);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+			return t;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
 		}
-		return t;
+	}
+
+	/**
+	 * Writes the actual instance to the filesystem.
+	 */
+	public void write(Table t) {
+		try {
+			ObjectOutputStream stream = new ObjectOutputStream(
+					new FileOutputStream(this.dbDirectory
+							+ java.io.File.separator + t.getName()));
+			stream.writeObject(t);
+			stream.close();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	public void printDb() {

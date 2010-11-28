@@ -27,10 +27,10 @@ public class Main {
 		Logger.debug("DEBUGGING IS ENABLED");
 		Logger.debug("load database");
 		FileSystemDatabase.getInstance().setDbDirectory(KUNDENDB);
-		//Main.createKundenDB();
+		Main.createKundenDB();
 		Logger.debug("execute sql");
-		Main.execute("select bla from blubb");
-		//Main.readFile("sql.txt");
+		Main.execute("select Titel, blubb, gubbl from Buch_Autor, badguy, mymom where you=me and blu=gree or foo=bar");
+		// Main.readFile("sql.txt");
 		Main.printKundenDB();
 		FileSystemDatabase.getInstance().persistDb();
 	}
@@ -69,7 +69,7 @@ public class Main {
 
 	private static void executePlan(ITreeNode plan) {
 		if (plan instanceof TableOperation)
-			((TableOperation)plan).execute();
+			((TableOperation) plan).execute();
 	}
 
 	private static void readFile(String filename) {

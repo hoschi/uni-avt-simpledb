@@ -17,6 +17,7 @@ import parser.syntaxtree.EqualityExpression;
 import parser.syntaxtree.Insert;
 import parser.syntaxtree.Item;
 import parser.syntaxtree.Items;
+import parser.syntaxtree.LiteralExpression;
 import parser.syntaxtree.Literals;
 import parser.syntaxtree.Name;
 import parser.syntaxtree.Node;
@@ -227,25 +228,37 @@ public class AlgebraVisitor extends ObjectDepthFirst {
 	}
 
 	/**
+	 * f0 -> <STRING_LITERAL>
+	 */
+	public Object visit(LiteralExpression n, Object argu) {
+		Object _ret = null;
+		_ret = n.f0.toString();
+		return _ret;
+	}
+
+	/**
 	 * f0 -> <IDENTIFIER> [ "." <IDENTIFIER> ] | LiteralExpression()
 	 */
 	public Object visit(PrimaryExpression n, Object argu) {
 		Object _ret = null;
 		Logger.debug("            call: PrimaryExpression");
 		List<Object> strings = new ArrayList<Object>();
-		n.f0.accept(this, strings);
+		String literal = (String) n.f0.accept(this, strings);
 		String value = "";
 		boolean isConstant = false;
 		if (!strings.isEmpty()) {
 			if (strings.size() == 1) {
-				isConstant = true;
 				value = strings.get(0).toString();
 			} else {
 				value = strings.get(0).toString() + strings.get(1).toString()
 						+ strings.get(2).toString();
 			}
 
+		} else {
+			value = literal;
+			isConstant = true;
 		}
+
 		((List<Object>) argu).add(new relationenalgebra.PrimaryExpression(
 				isConstant, value));
 

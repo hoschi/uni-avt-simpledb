@@ -1,5 +1,6 @@
 package main;
 
+import java.sql.DatabaseMetaData;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -275,8 +276,8 @@ public class AlgebraVisitor extends ObjectDepthFirst {
 	public Object visit(Tables n, Object argu) {
 		Logger.debug("    call: tables");
 		// collect all table names
-		List<String> tables = new ArrayList<String>();
-		String table = (String) n.f0.accept(this, null);
+		List<Relation> tables = new ArrayList<Relation>();
+		Relation table = (Relation) n.f0.accept(this, null);
 		if (table != null)
 			tables.add(table);
 		n.f1.accept(this, tables);
@@ -284,21 +285,22 @@ public class AlgebraVisitor extends ObjectDepthFirst {
 		ITreeNode _ret = null;
 		if (tables.isEmpty() == false) {
 			if (tables.size() == 1) {
-				_ret = new Relation(tables.get(0));
+				_ret = tables.get(0);
 			} else { // min 2 names -> min one cross product
-				Iterator<String> iter = tables.iterator();
-				CrossProduct root = new CrossProduct(new Relation(iter.next()));
+				Iterator<Relation> iter = tables.iterator();
+				CrossProduct root = new CrossProduct(iter.next());
 				CrossProduct current = root;
 				while (iter.hasNext()) {
-					String name = iter.next();
+
+					Relation rel = iter.next();
 					if (iter.hasNext()) {
 						// node
-						CrossProduct node = new CrossProduct(new Relation(name));
+						CrossProduct node = new CrossProduct(rel);
 						current.setSecondChild(node);
 						current = node;
 					} else {
 						// leaf
-						current.setSecondChild(new Relation(name));
+						current.setSecondChild(rel);
 					}
 				}
 				_ret = root;
@@ -314,11 +316,16 @@ public class AlgebraVisitor extends ObjectDepthFirst {
 	 */
 	public Object visit(Table n, Object argu) {
 		Logger.debug("      call: table");
-		Object _ret = null;
-		_ret = n.f0.accept(this, argu);
-		n.f1.accept(this, argu);
+		List<String> list = new ArrayList<String>();
+		String s = (String) n.f0.accept(this, null);
+		n.f1.accept(this, list);
 		Logger.debug("      call: table");
-		return _ret;
+		if (list.isEmpty()) {
+			return new Relation(s);
+		} else {
+			return new Relation(s, list.get(1));
+		}
+
 	}
 
 	/**

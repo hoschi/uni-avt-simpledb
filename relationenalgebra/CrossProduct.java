@@ -1,13 +1,13 @@
 package relationenalgebra;
 
 public class CrossProduct implements ITwoChildNode {
-	
+
 	private ITreeNode child1;
 	private ITreeNode child2;
-	
+
 	public CrossProduct() {
 	}
-	
+
 	public CrossProduct(ITreeNode first) {
 		this.child1 = first;
 	}
@@ -16,7 +16,7 @@ public class CrossProduct implements ITwoChildNode {
 		this.child1 = first;
 		this.child2 = second;
 	}
-	
+
 	@Override
 	public ITreeNode getSecondChild() {
 		return child2;
@@ -35,6 +35,14 @@ public class CrossProduct implements ITwoChildNode {
 	@Override
 	public void setChild(ITreeNode child) {
 		child1 = child;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("cross(").append(child1).append(", ")
+		.append(child2).append(")");
+		return sb.toString();
 	}
 
 }

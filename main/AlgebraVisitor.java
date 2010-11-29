@@ -172,14 +172,21 @@ public class AlgebraVisitor extends ObjectDepthFirst {
 		List<relationenalgebra.OrExpression> exprs = new ArrayList<relationenalgebra.OrExpression>();
 		n.f0.accept(this, exprs);
 		n.f1.accept(this, exprs);
-		for (Object o : exprs) {
-			if (o instanceof String)
-				exprs.remove(o);
-		}
+		removeStrings(exprs);
 		relationenalgebra.AndExpression and = new relationenalgebra.AndExpression(
 				exprs);
 		Logger.debug("      return: AndExpression");
 		return and;
+	}
+	
+	private static <T> void removeStrings(List<T> list) {
+		List<T> removeList = new ArrayList<T>();
+		for (T obj : list) {
+			if (obj instanceof String) {
+				removeList.add(obj);
+			}
+		}
+		list.removeAll(removeList);
 	}
 
 	/**
@@ -192,10 +199,6 @@ public class AlgebraVisitor extends ObjectDepthFirst {
 		List<relationenalgebra.EqualityExpression> exprs = new ArrayList<relationenalgebra.EqualityExpression>();
 		n.f1.accept(this, exprs);
 		n.f2.accept(this, exprs);
-		for (Object o : exprs) {
-			if (o instanceof String)
-				exprs.remove(o);
-		}
 		relationenalgebra.OrExpression or = new relationenalgebra.OrExpression(
 				exprs);
 		((List<relationenalgebra.OrExpression>) argu).add(or);

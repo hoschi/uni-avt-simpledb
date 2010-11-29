@@ -30,5 +30,10 @@ public class PrimaryExpression implements IBooleanExpression {
 	public String getValue() {
 		return value;
 	}
+	
+	@Override
+	public String toString() {
+		return value;
+	}
 
 }

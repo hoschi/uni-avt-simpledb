@@ -34,4 +34,18 @@ public class AndExpression implements IBooleanExpression {
 	public List<OrExpression> getExprs() {
 		return exprs;
 	}
+	
+	@Override
+	public String toString() {
+		if (exprs == null)
+			return expr.toString();
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < exprs.size(); i++) {
+			if (i != 0) {
+				sb.append(" and ");
+			}
+			sb.append(exprs.get(i));
+		}
+		return sb.toString();
+	}
 }

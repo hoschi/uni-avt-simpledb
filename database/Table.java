@@ -8,6 +8,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import main.Logger;
+
 import relationenalgebra.AndExpression;
 import relationenalgebra.EqualityExpression;
 import relationenalgebra.OrExpression;
@@ -15,287 +17,353 @@ import relationenalgebra.PrimaryExpression;
 
 public class Table implements Serializable {
 
-    private static class ValueLookup {
-        private Map<String,Integer> indexMap;
-        private Table[] tables;
-        private int[] currentRowIndices;
+	private static class ValueLookup {
+		private Map<String, Integer> indexMap;
+		private Table[] tables;
+		private int[] currentRowIndices;
+		private boolean anonymous;
 
-        ValueLookup(Table...tables) {
-            indexMap = new HashMap<String,Integer>();
-            this.tables = tables;
-            currentRowIndices = new int[tables.length];
+		ValueLookup(Table... tables) {
+			indexMap = new HashMap<String, Integer>();
+			this.tables = tables;
+			currentRowIndices = new int[tables.length];
+			anonymous = false;
 
-            for (int i = 0; i < tables.length; i++) {
-                indexMap.put(tables[i].getOfficialName(), Integer.valueOf(i));
-            }
-        }
+			for (int i = 0; i < tables.length; i++) {
+				indexMap.put(tables[i].getOfficialName(), Integer.valueOf(i));
+				if (tables[i].getOfficialName().equals("")) {
+					anonymous = true;
+				}
+			}
+		}
 
-        void setCurrentRowIndex(Table table, int rowIndex) {
-            currentRowIndices[indexMap.get(table.getOfficialName())] = rowIndex;
-        }
+		void setCurrentRowIndex(Table table, int rowIndex) {
+			currentRowIndices[indexMap.get(table.getOfficialName())] = rowIndex;
+		}
 
-        void setCurrentRowIndex(int tableIndex, int rowIndex) {
-            currentRowIndices[tableIndex] = rowIndex;
-        }
+		void setCurrentRowIndex(int tableIndex, int rowIndex) {
+			currentRowIndices[tableIndex] = rowIndex;
+		}
 
-        String lookupValue(String name) {
-            int i = name.indexOf(".");
-            String tableName = name.substring(0, i);
-            String columnName = name.substring(i+1, name.length());
-            Integer tableIndex = indexMap.get(tableName);
+		String lookupValue(String name) {
+			Integer tableIndex = Integer.valueOf(0);
+			String columnName = name;
 
-            if (tableIndex == null) {
-                throw new IllegalArgumentException(
-                        "table '"+tableName+"' not found");
-            }
+			if (!anonymous) {
+				int i = name.indexOf(".");
+				String tableName = name.substring(0, i);
+				columnName = name.substring(i + 1, name.length());
+				tableIndex = indexMap.get(tableName);
 
-            Table table = tables[tableIndex];
+				if (tableIndex == null) {
+					throw new IllegalArgumentException("table '" + tableName
+							+ "' not found");
+				}
+			}
 
-            return table.rows.get(currentRowIndices[tableIndex]).get(
-                    table.getColumnIndex(columnName));
-        }
-    }
+			Table table = tables[tableIndex];
 
-    static final long serialVersionUID = 1234;
-    protected String name;
-    protected String alias;
-    protected boolean drop;
-    protected List<String> columnNames;
-    protected List<List<String>> rows;
+			return table.rows.get(currentRowIndices[tableIndex]).get(
+					table.getColumnIndex(columnName));
+		}
+	}
 
-    public Table(String name) {
-        super();
-        this.name = name;
-        this.setUp();
-    }
+	static final long serialVersionUID = 1234;
+	protected String name;
+	protected String alias;
+	protected boolean drop;
+	protected List<String> columnNames;
+	protected List<List<String>> rows;
+	protected int cost;
 
-    public Table(String name, List<String> columns) {
-        super();
-        this.name = name;
-        this.columnNames = columns;
-        this.setUp();
-    }
-    
-    private void setUp() {
-    	this.rows = new LinkedList(new ArrayList<String>());
-    	this.drop = false;
-    }
+	public Table(String name) {
+		super();
+		this.name = name;
+		this.setUp();
+	}
 
-    /**
-     * Writes the actual instance to the filesystem.
-     */
-    public void write() {
-        FileSystemDatabase.getInstance().write(this);
-    }
+	public Table(String name, List<String> columns) {
+		super();
+		this.name = name;
+		this.columnNames = columns;
+		this.setUp();
+	}
 
-    /**
-     * Returns one row from privat row repository.
-     */
-    public List<String> getRow(int number) {
-        return Collections.unmodifiableList(rows.get(number));
-    }
+	private void setUp() {
+		this.rows = newRowsList();
+		this.drop = false;
+	}
 
-    public void addRow(List<String> names) {
-        if (names.size() != columnNames.size()) {
-            throw new IllegalArgumentException("bad row size");
-        }
-        rows.add(new ArrayList(names));
-    }
+	/**
+	 * Writes the actual instance to the filesystem.
+	 */
+	public void write() {
+		FileSystemDatabase.getInstance().write(this);
+	}
 
-    public void deleteRow(int number) {
-        rows.remove(number);
-    }
+	/**
+	 * Returns one row from privat row repository.
+	 */
+	public List<String> getRow(int number) {
+		return Collections.unmodifiableList(rows.get(number));
+	}
 
-    private int getColumnIndex(String name) {
-        for (int i = 0; i < columnNames.size(); i++) {
-            if (columnNames.get(i).equals(name)) {
-                return i;
-            }
-        }
-        return -1;
-    }
+	public void addRow(List<String> names) {
+		if (names.size() != columnNames.size()) {
+			throw new IllegalArgumentException("bad row size");
+		}
+		rows.add(new ArrayList<String>(names));
+	}
 
-    private static List<List<String>> newRowsList() {
-        return new LinkedList<List<String>>();
-    }
+	public void deleteRow(int number) {
+		rows.remove(number);
+	}
 
-    public Table projectTo(List<String> param) {
-        // compute indices for projection
-        int[] projection = new int[param.size()];
-        for (int i = 0; i < projection.length; i++) {
-            int index = getColumnIndex(param.get(i));
-            if (index < 0) {
-                throw new IllegalArgumentException("no column with name '"
-                        + param.get(i) + "'");
-            }
-            projection[i] = index;
-        }
+	private int getColumnIndex(String name) {
+		for (int i = 0; i < columnNames.size(); i++) {
+			if (columnNames.get(i).equals(name)) {
+				return i;
+			}
+			if (name.equals(getOfficialName() + "." + columnNames.get(i))) {
+				return i;
+			}
+		}
+		return -1;
+	}
 
-        // generate column names list
-        List<String> newColumnNames = new ArrayList<String>(projection.length);
-        for (int i = 0; i < projection.length; i++) {
-            newColumnNames.add(columnNames.get(projection[i]));
-        }
+	private static List<List<String>> newRowsList() {
+		return new LinkedList<List<String>>();
+	}
 
-        // generate new rows list
-        List<List<String>> newRows = newRowsList();
-        for (List<String> row : rows) {
-            List<String> projectedRow = new ArrayList<String>(projection.length);
-            for (int i = 0; i < projection.length; i++) {
-                projectedRow.add(row.get(projection[i]));
-            }
-        }
+	public Table projectTo(List<String> param) {
+		// compute indices for projection
+		int[] projection = new int[param.size()];
+		for (int i = 0; i < projection.length; i++) {
+			int index = getColumnIndex(param.get(i));
+			if (index < 0) {
+				throw new IllegalArgumentException("no column with name '"
+						+ param.get(i) + "'");
+			}
+			projection[i] = index;
+		}
+		
+		//Logger.debug("projection: "+columnNames+" to "+param);
 
-        return createAlteredClone(newColumnNames, newRows);
-    }
+		// generate column names list
+		List<String> newColumnNames = new ArrayList<String>(projection.length);
+		for (int i = 0; i < projection.length; i++) {
+			newColumnNames.add(columnNames.get(projection[i]));
+		}
 
-    private Table createAlteredClone(List<String> newColumnNames,
-            List<List<String>> newRows) {
-        Table result = new Table(this.name);
-        result.alias = this.alias;
-        result.columnNames = newColumnNames;
-        result.drop = false;
-        result.rows = newRows;
-        return result;
-    }
+		// generate new rows list
+		List<List<String>> newRows = newRowsList();
+		for (List<String> row : rows) {
+			List<String> projectedRow = new ArrayList<String>(projection.length);
+			for (int i = 0; i < projection.length; i++) {
+				projectedRow.add(row.get(projection[i]));
+			}
+			newRows.add(projectedRow);
+		}
+		
+		int newCost = this.cost + columnNames.size() * rows.size();
 
-    public Table select(AndExpression exp) {
-        List<List<String>> newRows = newRowsList();
-        ValueLookup vl = new ValueLookup(this);
+		return createAlteredClone(newColumnNames, newRows, newCost);
+	}
 
-        for (int i = 0; i < rows.size(); i++) {
-            vl.setCurrentRowIndex(this, i);
-            if (evaluate(exp, vl)) {
-                newRows.add(new ArrayList(rows.get(i)));
-            }
-        }
+	private Table createAlteredClone(List<String> newColumnNames,
+			List<List<String>> newRows, int newCost) {
+		Table result = new Table(this.name);
+		result.alias = this.alias;
 
-        return createAlteredClone(null, newRows);
-    }
+		if (newColumnNames == null) {
+			newColumnNames = new ArrayList<String>(this.columnNames);
+		}
 
-    private boolean evaluate(AndExpression expr, ValueLookup vl) {
-        if (expr.getExprs() == null) {
-            return evaluate(expr.getExpr(), vl);
-        }
-        for (OrExpression or : expr.getExprs()) {
-            if (!evaluate(or, vl)) {
-                return false;
-            }
-        }
-        return true;
-    }
+		result.columnNames = newColumnNames;
+		result.drop = false;
+		result.rows = newRows;
+		result.cost = newCost;
+		return result;
+	}
 
-    private boolean evaluate(OrExpression expr, ValueLookup vl) {
-        if (expr.getExprs() == null) {
-            return evaluate(expr.getExpr(), vl);
-        }
-        for (EqualityExpression eq : expr.getExprs()) {
-            if (evaluate(eq, vl)) {
-                return true;
-            }
-        }
-        return false;
-    }
+	public Table select(AndExpression exp) {
+		List<List<String>> newRows = newRowsList();
+		ValueLookup vl = new ValueLookup(this);
+		
+		//Logger.debug("selection: "+exp);
+		//Logger.debug("name: "+getOfficialName()+", columns: "+columnNames);
+		
+		for (int i = 0; i < rows.size(); i++) {
+			vl.setCurrentRowIndex(this, i);
+			
+			//Logger.debug("next row: "+rows.get(i));
+			
+			if (evaluate(exp, vl)) {
+				newRows.add(new ArrayList<String>(rows.get(i)));
+				
+			//	Logger.debug("ADDED");
+			}
+			//else Logger.debug("DISCARDED");
+		}
+		
+		int newCost = cost + newRows.size() * columnNames.size();
 
-    private boolean evaluate(EqualityExpression expr, ValueLookup vl) {
-        String valueA = retrieveValue(expr.getExpr1(), vl);
-        String valueB = retrieveValue(expr.getExpr1(), vl);
-        int cmp = valueA.compareTo(valueB);
-        switch (expr.getOperator()) {
-        case Equal:
-            return cmp == 0;
-        case Greater:
-            return cmp > 0;
-        case GreaterEqual:
-            return cmp >= 0;
-        case Lower:
-            return cmp < 0;
-        case LowerEqual:
-            return cmp <= 0;
-        case NotEqual:
-            return cmp != 0;
-        default:
-            throw new RuntimeException("unknown operator: "+expr.getOperator());
-        }
-    }
+		return createAlteredClone(null, newRows, newCost);
+	}
 
-    private String getOfficialName() {
-        if (alias != null) {
-            return alias;
-        }
-        return name;
-    }
+	private boolean evaluate(AndExpression expr, ValueLookup vl) {
+		if (expr.getExprs() == null) {
+			return evaluate(expr.getExpr(), vl);
+		}
+		for (OrExpression or : expr.getExprs()) {
+			if (!evaluate(or, vl)) {
+				return false;
+			}
+		}
+		return true;
+	}
 
-    private String retrieveValue(PrimaryExpression expr, ValueLookup vl) {
-        if (expr.isConstant()) {
-            return expr.getValue();
-        }
-        return vl.lookupValue(expr.getValue());
-    }
+	private boolean evaluate(OrExpression expr, ValueLookup vl) {
+		if (expr.getExprs() == null) {
+			return evaluate(expr.getExpr(), vl);
+		}
+		for (EqualityExpression eq : expr.getExprs()) {
+			if (evaluate(eq, vl)) {
+				return true;
+			}
+		}
+		return false;
+	}
 
-    public Table join(Table table, AndExpression exp) {
-        List<List<String>> newRows = newRowsList();
-        ValueLookup vl = new ValueLookup(this, table);
-        int newRowSize = columnNames.size() + table.columnNames.size();
+	private boolean evaluate(EqualityExpression expr, ValueLookup vl) {
+		String valueA = retrieveValue(expr.getExpr1(), vl);
+		String valueB = retrieveValue(expr.getExpr2(), vl);
+		int cmp = valueA.compareTo(valueB);
+		
+		//Logger.debug("comparing "+valueA+" to "+valueB+": "+cmp);
+		
+		switch (expr.getOperator()) {
+		case Equal:
+			return cmp == 0;
+		case Greater:
+			return cmp > 0;
+		case GreaterEqual:
+			return cmp >= 0;
+		case Lower:
+			return cmp < 0;
+		case LowerEqual:
+			return cmp <= 0;
+		case NotEqual:
+			return cmp != 0;
+		default:
+			throw new RuntimeException("unknown operator: "
+					+ expr.getOperator());
+		}
+	}
 
-        List<String> newColumnNames = new ArrayList<String>(newRowSize);
-        newColumnNames.addAll(columnNames);
-        newColumnNames.addAll(table.columnNames);
+	private String getOfficialName() {
+		if (alias != null) {
+			return alias;
+		}
+		return name;
+	}
 
-        for (int i = 0; i < rows.size(); i++) {
-            vl.setCurrentRowIndex(0, i);
-            for (int j = 0; j < table.rows.size(); j++) {
-                vl.setCurrentRowIndex(1, j);
-                List<String> newRow = new ArrayList<String>(newRowSize);
-                newRow.addAll(rows.get(i));
-                newRow.addAll(table.rows.get(j));
+	private String retrieveValue(PrimaryExpression expr, ValueLookup vl) {
+		if (expr.isConstant()) {
+			return expr.getValue();
+		}
+		return vl.lookupValue(expr.getValue());
+	}
 
-                if (exp == null || evaluate(exp, vl)) {
-                    newRows.add(newRow);
-                }
-            }
-        }
+	private static List<String> toQualifiedColumnNames(
+			List<String> columnNames, String tableName) {
+		List<String> result = new ArrayList<String>(columnNames.size());
+		for (String name : columnNames) {
+			if (tableName.length() == 0) {
+				result.add(name);
+			} else {
+				result.add(tableName + "." + name);
+			}
+		}
+		return result;
+	}
 
-        return createAlteredClone(newColumnNames, newRows);
-    }
+	public Table join(Table table, AndExpression exp) {
+		List<List<String>> newRows = newRowsList();
+		ValueLookup vl = new ValueLookup(this, table);
+		int newRowSize = columnNames.size() + table.columnNames.size();
 
-    public Table cross(Table table) {
-        return join(table, null);
-    }
+		List<String> newColumnNames = new ArrayList<String>(newRowSize);
+		newColumnNames.addAll(toQualifiedColumnNames(columnNames,
+				getOfficialName()));
+		newColumnNames.addAll(toQualifiedColumnNames(table.columnNames, table
+				.getOfficialName()));
 
-    public String toString() {
-        String s = "table '" + this.name + "'\n\tcolumns: '";
-        for (String c : this.columnNames) {
-            s += c + ", ";
-        }
-        s += "'\n\trows:\n";
+		for (int i = 0; i < rows.size(); i++) {
+			vl.setCurrentRowIndex(0, i);
+			for (int j = 0; j < table.rows.size(); j++) {
+				vl.setCurrentRowIndex(1, j);
+				List<String> newRow = new ArrayList<String>(newRowSize);
+				newRow.addAll(rows.get(i));
+				newRow.addAll(table.rows.get(j));
+				
+				//Logger.debug("next row "+i+", "+j+": "+newRow);
 
-        if (this.rows != null) {
-            for (List<String> row : this.rows) {
-                s += "\t\t";
-                for (String value : row) {
-                    s += value + "\t";
-                }
-                s += "\n";
-            }
-        }
-        return s;
-    }
+				if (exp == null || evaluate(exp, vl)) {
+					newRows.add(newRow);
+				}
+			}
+		}
 
-    public String getName() {
-        return name;
-    }
+		Table result = new Table("", newColumnNames);
+		result.rows = newRows;
+		result.cost = this.cost + table.cost + newRows.size() * newColumnNames.size();
+		return result;
+	}
 
-    public void setName(String name) {
-        this.name = name;
-    }
+	public Table cross(Table table) {
+		return join(table, null);
+	}
 
-    public String getAlias() {
-        return alias;
-    }
+	public String toString() {
+		String s = "table '" + this.name + "'\n\tcolumns: '";
+		for (String c : this.columnNames) {
+			s += c + ", ";
+		}
+		s += "'\n\trows:\n";
 
-    public void setAlias(String alias) {
-        this.alias = alias;
-    }
+		if (this.rows != null) {
+			for (List<String> row : this.rows) {
+				s += "\t\t";
+				for (String value : row) {
+					s += value + "\t";
+				}
+				s += "\n";
+			}
+		}
+		
+		s += "cost: " + cost + "\n";
+		return s;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getAlias() {
+		return alias;
+	}
+
+	public void setAlias(String alias) {
+		this.alias = alias;
+	}
+	
+	public int getCost() {
+		return cost;
+	}
 
 }

@@ -1,5 +1,6 @@
 package relationenalgebra;
 
+import java.util.Collections;
 import java.util.List;
 
 public class Projection implements IOneChildNode {
@@ -22,6 +23,19 @@ public class Projection implements IOneChildNode {
 		this.child = child;
 	}
 
+	public List<String> getColumnnames() {
+		return columnnames;
+	}
 	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("projection(");
+		sb.append(columnnames);
+		sb.append(", ");
+		sb.append(child);
+		sb.append(")");
+		return sb.toString();
+	}
 
 }

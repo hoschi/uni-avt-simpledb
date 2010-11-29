@@ -19,5 +19,20 @@ public class Selection implements IOneChildNode {
 	public void setChild(ITreeNode child) {
 		this.child = child;
 	}
+	
+	public AndExpression getExpr() {
+		return expr;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("selection(");
+		sb.append(expr);
+		sb.append(", ");
+		sb.append(child);
+		sb.append(")");
+		return sb.toString();
+	}
 
 }

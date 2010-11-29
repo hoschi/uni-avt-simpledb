@@ -7,5 +7,9 @@ public class Join extends CrossProduct {
 	public Join(AndExpression expr) {
 		this.expr = expr;
 	}
+	
+	public AndExpression getExpr() {
+		return expr;
+	}
 
 }

@@ -50,5 +50,12 @@ public class Relation implements ITreeNode {
 	public void setTuplenames(String[] tuplenames) {
 		this.tuplenames = tuplenames;
 	}
+	
+	@Override
+	public String toString() {
+		if (alias == null)
+			return name;
+		return name + " AS " + alias;
+	}
 
 }

@@ -14,9 +14,18 @@ public class MoveSelection implements IOptimization {
     @Override
     public ITreeNode optimize(ITreeNode plan) {
         if (!(plan instanceof Selection)) {
+            if (plan instanceof ITwoChildNode) {
+                ((ITwoChildNode) plan).setSecondChild(
+                        optimize(((ITwoChildNode) plan).getSecondChild()));
+            }
+            if (plan instanceof IOneChildNode) {
+                ((IOneChildNode) plan).setChild(
+                        optimize(((IOneChildNode) plan).getChild()));
+            }
             return plan;
         }
         Selection s = (Selection)plan;
+        s.setChild(optimize(s.getChild()));
 
         return moveSelection(s);
     }

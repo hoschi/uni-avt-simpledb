@@ -210,9 +210,11 @@ public class Table implements Serializable {
     }
 
     private boolean evaluate(AndExpression expr, ValueLookup vl) {
+        /*
         if (expr.getExprs() == null) {
             return evaluate(expr.getExpr(), vl);
         }
+        */
         for (OrExpression or : expr.getExprs()) {
             if (!evaluate(or, vl)) {
                 return false;
@@ -222,9 +224,11 @@ public class Table implements Serializable {
     }
 
     private boolean evaluate(OrExpression expr, ValueLookup vl) {
+        /*
         if (expr.getExprs() == null) {
             return evaluate(expr.getExpr(), vl);
         }
+        */
         for (EqualityExpression eq : expr.getExprs()) {
             if (evaluate(eq, vl)) {
                 return true;

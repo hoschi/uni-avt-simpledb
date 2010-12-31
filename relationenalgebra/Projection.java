@@ -1,6 +1,8 @@
 package relationenalgebra;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class Projection implements IOneChildNode {
 
@@ -35,6 +37,13 @@ public class Projection implements IOneChildNode {
         sb.append(child);
         sb.append(")");
         return sb.toString();
+    }
+
+    @Override
+    public Set<String> getAttributes() {
+        Set<String> result = new HashSet<String>(columnnames);
+        result.addAll(child.getAttributes());
+        return result;
     }
 
 }

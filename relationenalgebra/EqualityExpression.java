@@ -1,5 +1,8 @@
 package relationenalgebra;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class EqualityExpression implements IBooleanExpression {
 
     public enum Operator {
@@ -74,6 +77,14 @@ public class EqualityExpression implements IBooleanExpression {
         if (expr2 != null && expr2.getValue() != null)
             s += expr2.getValue();
         return s;
+    }
+
+    @Override
+    public Set<String> getAttributes() {
+        Set<String> result = new HashSet<String>();
+        result.addAll(expr1.getAttributes());
+        result.addAll(expr2.getAttributes());
+        return result;
     }
 
 }

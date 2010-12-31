@@ -2,7 +2,9 @@ package relationenalgebra;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class AndExpression implements IBooleanExpression {
     private List<OrExpression> exprs;
@@ -46,5 +48,17 @@ public class AndExpression implements IBooleanExpression {
             sb.append(exprs.get(i));
         }
         return sb.toString();
+    }
+
+    @Override
+    public Set<String> getAttributes() {
+        if (exprs.size() == 1) {
+            return exprs.get(0).getAttributes();
+        }
+        Set<String> result = new HashSet<String>();
+        for (OrExpression or : exprs) {
+            result.addAll(or.getAttributes());
+        }
+        return result;
     }
 }

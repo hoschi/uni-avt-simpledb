@@ -1,15 +1,24 @@
 package relationenalgebra;
 
-public class Join extends CrossProduct {
-	
-	private AndExpression expr;
+import java.util.Set;
 
-	public Join(AndExpression expr) {
-		this.expr = expr;
-	}
-	
-	public AndExpression getExpr() {
-		return expr;
-	}
+public class Join extends CrossProduct {
+
+    private AndExpression expr;
+
+    public Join(AndExpression expr) {
+        this.expr = expr;
+    }
+
+    public AndExpression getExpr() {
+        return expr;
+    }
+
+    @Override
+    public Set<String> getAttributes() {
+        Set<String> result = super.getAttributes();
+        result.addAll(expr.getAttributes());
+        return result;
+    }
 
 }

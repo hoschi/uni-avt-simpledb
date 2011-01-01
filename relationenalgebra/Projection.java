@@ -46,4 +46,9 @@ public class Projection implements IOneChildNode {
         return result;
     }
 
+	@Override
+	public ITreeNode getSecondChild() {
+		return null;
+	}
+
 }

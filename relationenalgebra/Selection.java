@@ -45,4 +45,9 @@ public class Selection implements IOneChildNode {
         return result;
     }
 
+	@Override
+	public ITreeNode getSecondChild() {
+		return null;
+	}
+
 }

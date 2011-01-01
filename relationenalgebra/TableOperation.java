@@ -11,5 +11,13 @@ public abstract class TableOperation implements ITreeNode {
 	}
 	public abstract void execute(Table table);
 	public abstract Table execute();
+	
+	public ITreeNode getChild() {
+        return null;
+    }
+	
+	public ITreeNode getSecondChild() {
+		return null;
+	}
 
 }

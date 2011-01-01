@@ -70,4 +70,14 @@ public class Relation implements ITreeNode {
         return result;
     }
 
+	@Override
+	public ITreeNode getChild() {
+		return null;
+	}
+
+	@Override
+	public ITreeNode getSecondChild() {
+		return null;
+	}
+
 }

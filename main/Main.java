@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 
+import optimization.CascadeSelects;
+
 import parser.gene.ParseException;
 import parser.gene.SimpleSQLParser;
 import parser.syntaxtree.CompilationUnit;
@@ -21,6 +23,7 @@ import relationenalgebra.Projection;
 import relationenalgebra.Relation;
 import relationenalgebra.Selection;
 import relationenalgebra.TableOperation;
+import test.TreeNodeTester;
 import database.FileSystemDatabase;
 import database.Table;
 
@@ -40,11 +43,14 @@ public class Main {
 		//Main.execute("select B.Titel from Buch_Autor as BA, Buch as B where BA.Autorenname=\"Christian Ullenboom\" and BA.B_ID=B.ID");
 		//Main.execute("select B.Titel from Buch_Autor as BA, Buch as B where BA.Autorenname=\"Henning Mankell\" and BA.B_ID=B.ID");
 		Main.execute("select B.Titel from Buch as B, Kunde as K, Buch_Bestellung as BB, Kunde_Bestellung as KB where K.Name=\"KName1\" and K.ID=KB.K_ID and KB.B_ID=BB.Be_ID and BB.Bu_ID=B.ID");
+		
 		//Main.readFile("sql.txt");
+		
+		
 		Main.printKundenDB();
 		FileSystemDatabase.getInstance().persistDb();
 	}
-
+	
 	public static void printKundenDB() throws IOException,
 			ClassNotFoundException {
 		FileSystemDatabase.getInstance().printDb();

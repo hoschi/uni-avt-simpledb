@@ -3,6 +3,9 @@ package relationenalgebra;
 import java.util.HashSet;
 import java.util.Set;
 
+import database.FileSystemDatabase;
+import database.Table;
+
 public class Relation implements ITreeNode {
 
     private String name;
@@ -64,6 +67,11 @@ public class Relation implements ITreeNode {
     @Override
     public Set<String> getAttributes() {
         Set<String> result = new HashSet<String>();
+        if (tuplenames == null) {
+        	// load table
+        	Table t = FileSystemDatabase.getInstance().getTable(this.getName());
+        	this.tuplenames = t.getColumnnames();
+        }
         for (String name : tuplenames) {
             result.add(name);
         }

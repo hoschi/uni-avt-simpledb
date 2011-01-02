@@ -47,8 +47,8 @@ public class Main {
 		//Main.readFile("sql.txt");
 		
 		
-		Main.printKundenDB();
-		FileSystemDatabase.getInstance().persistDb();
+		//Main.printKundenDB();
+		//FileSystemDatabase.getInstance().persistDb();
 	}
 	
 	public static void printKundenDB() throws IOException,

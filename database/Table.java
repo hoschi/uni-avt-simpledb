@@ -367,5 +367,9 @@ public class Table implements Serializable {
     public int getCost() {
         return cost;
     }
+    
+    public String[] getColumnnames() {
+    	return this.columnNames.toArray(new String[this.columnNames.size()]);
+    }
 
 }

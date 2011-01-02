@@ -38,7 +38,7 @@ public class Main {
 		Logger.debug("DEBUGGING IS ENABLED");
 		Logger.debug("load database");
 		FileSystemDatabase.getInstance().setDbDirectory(KUNDENDB);
-		//Main.createKundenDB();
+		Main.createKundenDB();
 		Logger.debug("execute sql");
 		//Main.execute("select B.Titel from Buch_Autor as BA, Buch as B where BA.Autorenname=\"Christian Ullenboom\" and BA.B_ID=B.ID");
 		//Main.execute("select B.Titel from Buch_Autor as BA, Buch as B where BA.Autorenname=\"Henning Mankell\" and BA.B_ID=B.ID");
@@ -133,7 +133,7 @@ public class Main {
 			// Read File Line By Line
 			while ((strLine = br.readLine()) != null) {
 				// Print the content on the console
-				if (strLine != "\n")
+				if (!strLine.equals("\n") && !strLine.equals(""))
 					Main.execute(strLine);
 			}
 			// Close the input stream

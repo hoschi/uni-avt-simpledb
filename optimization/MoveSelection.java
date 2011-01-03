@@ -32,13 +32,14 @@ public class MoveSelection implements IOptimization {
 
 
     private static ITreeNode moveSelection(Selection s) {
-        ITreeNode child = s.getChild();
+        ITreeNode child = null;
         ITreeNode result = s;
         ITreeNode parent = null;
         int switchWithChild = 0;
 
         do {
             switchWithChild = 0;
+            child = s.getChild();
 
             // check if we can move the selection
             // 1 for first child, 2 for second child, 0 => don't move
@@ -72,24 +73,28 @@ public class MoveSelection implements IOptimization {
             // move down, update parent
             if (switchWithChild > 0) {
                 replaceChild(parent, s, child); // replace s with child in parent
-                parent = child;                 // new parent
+                //parent = child;                 // new parent
             }
 
             // move down, update child (parent-to-be)
             switch (switchWithChild) {
-            case 1: {
-                IOneChildNode c1 = (IOneChildNode)child;
-                s.setChild(c1.getChild());
-                c1.setChild(s);
-            } break;
-            case 2: {
-                replaceChild(parent, s, child);
-                ITwoChildNode c2 = (ITwoChildNode)child;
-                s.setChild(c2.getChild());
-                c2.setSecondChild(s);
-            } break;
+	            case 1: {
+	                s.setChild(child.getChild());
+	                IOneChildNode c1 = (IOneChildNode)child;
+	                c1.setChild(s);
+	                parent = child;
+	            } break;
+	            case 2: {
+	                replaceChild(parent, s, child);
+	                ITwoChildNode c2 = (ITwoChildNode)child;
+	                s.setChild(c2.getChild());
+	                c2.setSecondChild(s);
+	                parent = child;
+	            } break;
             }
 
+            // after first swap -> set old child as return value
+            // this child can't go more upwards in the tree!
             if (result == s && switchWithChild > 0) {
                 result = child;
             }

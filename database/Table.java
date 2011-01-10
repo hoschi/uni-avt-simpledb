@@ -61,8 +61,15 @@ public class Table implements Serializable {
 
             Table table = tables[tableIndex];
 
-            return table.rows.get(currentRowIndices[tableIndex]).get(
-                    table.getColumnIndex(columnName));
+            int rowIndex = currentRowIndices[tableIndex];
+            int columnIndex = table.getColumnIndex(columnName);
+
+            if (columnIndex < 0) {
+                throw new IllegalArgumentException("no column named '"
+                        + columnName + "' found in current table");
+            }
+
+            return table.rows.get(rowIndex).get(columnIndex);
         }
     }
 
@@ -367,9 +374,9 @@ public class Table implements Serializable {
     public int getCost() {
         return cost;
     }
-    
+
     public String[] getColumnnames() {
-    	return this.columnNames.toArray(new String[this.columnNames.size()]);
+        return this.columnNames.toArray(new String[this.columnNames.size()]);
     }
 
 }

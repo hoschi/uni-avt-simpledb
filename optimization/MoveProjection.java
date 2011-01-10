@@ -39,7 +39,7 @@ public class MoveProjection implements IOptimization {
         	// always switch with selection
         	Selection s = (Selection)child;
         	p.setChild(s.getChild());
-        	s.setChild(p);
+        	s.setChild(moveProjection(p));
         	return s;
         } else if (child instanceof CrossProduct) {
         	// handle cross product or join
@@ -77,16 +77,24 @@ public class MoveProjection implements IOptimization {
         	}
         	
         	// create children projections
-        	Projection firstChildProjection = new Projection(new ArrayList<String>(projectedFirstChildAttributes));
-        	Projection secondChildProjection = new Projection(new ArrayList<String>(projectedSecondChildAttributes));
+        	if (projectedFirstChildAttributes.size() > 0) {
+	        	Projection firstChildProjection = new Projection(new ArrayList<String>(projectedFirstChildAttributes));
+	        	firstChildProjection.setChild(twoChildNode.getChild());
+	        	firstChild = moveProjection(firstChildProjection);
+	        	twoChildNode.setChild(firstChild);
+        	}
         	
-        	// move projections
-        	firstChild = moveProjection(firstChildProjection);
-        	secondChild = moveProjection(secondChildProjection);
+        	if (projectedSecondChildAttributes.size() > 0) {
+        		Projection secondChildProjection = new Projection(new ArrayList<String>(projectedSecondChildAttributes));
+        		secondChildProjection.setChild(twoChildNode.getSecondChild());
+            	// move projections
+            	secondChild = moveProjection(secondChildProjection);
+            	
+            	// update relations and return result
+            	twoChildNode.setSecondChild(secondChild);
+            }
         	
-        	// update relations and return result
-        	twoChildNode.setChild(firstChild);
-        	twoChildNode.setSecondChild(secondChild);
+        	
         	return rootNode;
         } else {
         	return p; // cannot move

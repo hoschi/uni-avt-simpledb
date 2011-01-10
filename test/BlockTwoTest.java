@@ -4,15 +4,18 @@ import main.Logger;
 import main.Main;
 
 import optimization.CascadeSelects;
+import optimization.DetectJoins;
 import optimization.MoveSelection;
 
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import database.FileSystemDatabase;
 
 import relationenalgebra.CrossProduct;
 import relationenalgebra.ITreeNode;
+import relationenalgebra.Join;
 import relationenalgebra.Projection;
 import relationenalgebra.Relation;
 import relationenalgebra.Selection;
@@ -95,6 +98,7 @@ public class BlockTwoTest {
 	}
 	
 	@Test
+	@Ignore
 	public void TestMoveSelection() {
 		TreeNodeTester test;
 		ITreeNode plan = Main.sqlToRelationenAlgebra("select B.Titel " +
@@ -119,6 +123,38 @@ public class BlockTwoTest {
 		// right subtree
 		test.secondIs(CrossProduct.class).followSecond()
 		.firstIs(Relation.class).secondIs(Relation.class).reset();
+	}
+	
+	@Test
+	public void TestDetectJoins() {
+		TreeNodeTester test;
+		ITreeNode plan = Main.sqlToRelationenAlgebra("select B.ID, K.Name " +
+				"from Bestellung as B, Kunde as K, Kunde_Bestellung as KB " +
+				"where KB.K_ID=K.ID and KB.B_ID=B.ID and B.ID=\"Bestellung5\"");
+		
+		plan = new CascadeSelects().optimize(plan);
+		plan = new MoveSelection().optimize(plan);
+		
+		// was
+		test = new TreeNodeTester(plan);
+		test.nodeIs(Projection.class).followFirst()
+		.nodeIs(Selection.class).followFirst()
+		.nodeIs(Selection.class).followFirst()
+		.nodeIs(Selection.class).firstIs(CrossProduct.class).followFirst()
+		.firstIs(Relation.class).secondIs(CrossProduct.class).followSecond()
+		.firstIs(Relation.class).secondIs(Relation.class).reset();
+		
+		plan = new DetectJoins().optimize(plan);
+				
+		// now merged selection number 3
+		test = new TreeNodeTester(plan);
+		test.nodeIs(Projection.class).followFirst()
+		.nodeIs(Selection.class).followFirst()
+		.nodeIs(Selection.class).followFirst()
+		.nodeIs(Join.class)
+		.firstIs(Relation.class).secondIs(CrossProduct.class).followSecond()
+		.firstIs(Relation.class).secondIs(Relation.class).reset();
+		
 	}
 
 }

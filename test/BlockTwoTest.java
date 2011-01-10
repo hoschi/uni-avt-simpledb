@@ -1,10 +1,12 @@
 package test;
 
+import junit.framework.Assert;
 import main.Logger;
 import main.Main;
 
 import optimization.CascadeSelects;
 import optimization.DetectJoins;
+import optimization.MoveProjection;
 import optimization.MoveSelection;
 
 import org.junit.BeforeClass;
@@ -133,6 +135,40 @@ public class BlockTwoTest {
 				"where KB.K_ID=K.ID and KB.B_ID=B.ID and B.ID=\"Bestellung5\"");
 		
 		plan = new CascadeSelects().optimize(plan);
+		
+		// was
+		test = new TreeNodeTester(plan);
+		test.nodeIs(Projection.class).followFirst()
+		.nodeIs(Selection.class).followFirst()
+		.nodeIs(Selection.class).followFirst()
+		.nodeIs(Selection.class).firstIs(CrossProduct.class).followFirst()
+		.firstIs(Relation.class).secondIs(CrossProduct.class).followSecond()
+		.firstIs(Relation.class).secondIs(Relation.class).reset();
+		
+		plan = new DetectJoins().optimize(plan);
+				
+		// now merged selection number 3
+		test = new TreeNodeTester(plan);
+		Join join = (Join) test.nodeIs(Projection.class).followFirst()
+		.nodeIs(Selection.class).followFirst()
+		.nodeIs(Selection.class).followFirst()
+		.nodeIs(Join.class).getPlan();
+		Assert.assertTrue(join.getExpr().toString().equals("KB.K_ID Equal K.ID"));
+		
+		test = new TreeNodeTester(join);
+		test.firstIs(Relation.class).secondIs(CrossProduct.class).followSecond()
+		.firstIs(Relation.class).secondIs(Relation.class).reset();
+		
+	}
+	
+	@Test
+	public void TestDetectJoinsAndMergeOnlyJoinExpressions() {
+		TreeNodeTester test;
+		ITreeNode plan = Main.sqlToRelationenAlgebra("select B.ID, K.Name " +
+				"from Bestellung as B, Kunde as K, Kunde_Bestellung as KB " +
+				"where KB.K_ID=K.ID and KB.B_ID=B.ID and B.ID=\"Bestellung5\"");
+		
+		plan = new CascadeSelects().optimize(plan);
 		plan = new MoveSelection().optimize(plan);
 		
 		// was
@@ -145,6 +181,40 @@ public class BlockTwoTest {
 		.firstIs(Relation.class).secondIs(Relation.class).reset();
 		
 		plan = new DetectJoins().optimize(plan);
+				
+		// can't merge selection -> contains no join expression
+		test = new TreeNodeTester(plan);
+		test.nodeIs(Projection.class).followFirst()
+		.nodeIs(Selection.class).followFirst()
+		.nodeIs(Selection.class).followFirst()
+		.nodeIs(Selection.class).firstIs(CrossProduct.class).followFirst()
+		.firstIs(Relation.class).secondIs(CrossProduct.class).followSecond()
+		.firstIs(Relation.class).secondIs(Relation.class).reset();
+		
+	}
+	
+	@Test
+	@Ignore
+	public void TestMoveProjection() {
+		TreeNodeTester test;
+		ITreeNode plan = Main.sqlToRelationenAlgebra("select Name " +
+				"from Kunde,Kunde_Bestellung " +
+				"where ID=K_ID and Name=\"KName1\"");
+		
+		plan = new CascadeSelects().optimize(plan);
+		plan = new MoveSelection().optimize(plan);
+		plan = new DetectJoins().optimize(plan);
+		
+		// was
+		test = new TreeNodeTester(plan);
+		test.nodeIs(Projection.class).followFirst()
+		.nodeIs(Selection.class).followFirst()
+		.nodeIs(Selection.class).followFirst()
+		.nodeIs(Selection.class).firstIs(CrossProduct.class).followFirst()
+		.firstIs(Relation.class).secondIs(CrossProduct.class).followSecond()
+		.firstIs(Relation.class).secondIs(Relation.class).reset();
+		
+		plan = new MoveProjection().optimize(plan);
 				
 		// now merged selection number 3
 		test = new TreeNodeTester(plan);

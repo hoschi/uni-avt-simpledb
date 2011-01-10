@@ -1,6 +1,7 @@
 package test;
 
 import relationenalgebra.ITreeNode;
+import relationenalgebra.Join;
 
 public class TreeNodeTester {
 	private ITreeNode node = null;
@@ -45,5 +46,9 @@ public class TreeNodeTester {
 	
 	public void reset() {
 		layer = 0;
+	}
+
+	public ITreeNode getPlan() {
+		return this.node;
 	}
 }

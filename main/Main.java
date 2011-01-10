@@ -55,34 +55,34 @@ public class Main {
 	
 	public static void blockTwoOptimizationDemo() {
 		String[] queries = new String[]{
-			"select B.Titel " +
-			"from " +
-			"	Buch as B, " +
-			"	Kunde as K, " +
-			"	Buch_Bestellung as BB," +
-			"	Kunde_Bestellung as KB " +
-			"where " +
-			"	K.Name=\"KName1\" and " +
-			"	K.ID=KB.K_ID and " +
-			"	KB.B_ID=BB.Be_ID and " +
+			"select B.Titel \n" +
+			"from \n" +
+			"	Buch as B, \n" +
+			"	Kunde as K, \n" +
+			"	Buch_Bestellung as BB,\n" +
+			"	Kunde_Bestellung as KB \n" +
+			"where \n" +
+			"	K.Name=\"KName1\" and \n" +
+			"	K.ID=KB.K_ID and \n" +
+			"	KB.B_ID=BB.Be_ID and \n" +
 			"	BB.Bu_ID=B.ID",
 			
-			"select B.ID, K.Name " +
-			"from" +
-			"	Bestellung as B, " +
-			"	Kunde as K, " +
-			"	Kunde_Bestellung as KB, " +
-			"where " +
-			"	KB.K_ID=K.ID and " +
-			"	KB.B_ID=B.ID and " +
+			"select B.ID, K.Name \n" +
+			"from\n" +
+			"	Bestellung as B, \n" +
+			"	Kunde as K, \n" +
+			"	Kunde_Bestellung as KB, \n" +
+			"where \n" +
+			"	KB.K_ID=K.ID and \n" +
+			"	KB.B_ID=B.ID and \n" +
 			"	B.ID=\"Bestellung5\"",
 			
-			"select Name " +
-			"from " +
-			"	Kunde, " +
-			"	Kunde_Bestellung " +
-			"where " +
-			"	ID=K_ID and " +
+			"select Name \n" +
+			"from \n" +
+			"	Kunde, \n" +
+			"	Kunde_Bestellung \n" +
+			"where \n" +
+			"	ID=K_ID and \n" +
 			"	Name=\"KName1\"",
 		};
 		
@@ -125,6 +125,8 @@ public class Main {
 	
 	private static Table executeOptimized(String query, IOptimization[] optimizations) {
 		ITreeNode plan = sqlToRelationenAlgebra(query);
+		System.out.println("parsed plan: ");
+		System.out.println(plan.toString());
 		for (IOptimization optimization : optimizations) {
 			try {
 				plan = optimization.optimize(plan);
@@ -135,6 +137,8 @@ public class Main {
 				return null;
 			}
 		}
+		System.out.println("optimized plan:");
+		System.out.println(plan);
 		try {
 			return executeQuery(plan);
 		} catch (Exception e) {

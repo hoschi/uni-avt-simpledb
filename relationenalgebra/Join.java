@@ -20,5 +20,10 @@ public class Join extends CrossProduct {
         result.addAll(expr.getAttributes());
         return result;
     }
+    
+    @Override
+    public String toString() {
+    	return "join(expr("+expr+"), child1("+getChild()+"), child2("+getSecondChild()+"))";
+    }
 
 }

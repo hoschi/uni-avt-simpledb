@@ -194,7 +194,6 @@ public class BlockTwoTest {
 	}
 	
 	@Test
-	@Ignore
 	public void TestMoveProjection() {
 		TreeNodeTester test;
 		ITreeNode plan = Main.sqlToRelationenAlgebra("select Name " +
@@ -209,21 +208,18 @@ public class BlockTwoTest {
 		test = new TreeNodeTester(plan);
 		test.nodeIs(Projection.class).followFirst()
 		.nodeIs(Selection.class).followFirst()
-		.nodeIs(Selection.class).followFirst()
 		.nodeIs(Selection.class).firstIs(CrossProduct.class).followFirst()
-		.firstIs(Relation.class).secondIs(CrossProduct.class).followSecond()
 		.firstIs(Relation.class).secondIs(Relation.class).reset();
 		
 		plan = new MoveProjection().optimize(plan);
 				
-		// now merged selection number 3
+		// move Name projection right before Name relation
 		test = new TreeNodeTester(plan);
-		test.nodeIs(Projection.class).followFirst()
+		test.nodeIs(Selection.class).followFirst()
 		.nodeIs(Selection.class).followFirst()
-		.nodeIs(Selection.class).followFirst()
-		.nodeIs(Join.class)
-		.firstIs(Relation.class).secondIs(CrossProduct.class).followSecond()
-		.firstIs(Relation.class).secondIs(Relation.class).reset();
+		.nodeIs(CrossProduct.class)
+		.firstIs(Projection.class).secondIs(Relation.class).followFirst()
+		.firstIs(Relation.class).reset();
 		
 	}
 

@@ -71,7 +71,7 @@ public class Main {
             "from\n" +
             "	Bestellung as B, \n" +
             "	Kunde as K, \n" +
-            "	Kunde_Bestellung as KB, \n" +
+            "	Kunde_Bestellung as KB \n" +
             "where \n" +
             "	KB.K_ID=K.ID and \n" +
             "	KB.B_ID=B.ID and \n" +

@@ -46,9 +46,12 @@ public class MoveProjection implements IOptimization {
             if (selectionAttributes.containsAll(projectionAttributes)) {
             	p.setChild(s.getChild());
             	s.setChild(moveProjection(p));
+            	return s;
             }
-            
-        	return s;
+            else {
+            	return p;
+            }
+        	
         } else if (child instanceof CrossProduct) {
         	// handle cross product or join
         	

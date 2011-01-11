@@ -77,7 +77,14 @@ public class Table implements Serializable {
             		Table t = tables[i];
             		for (String colName : t.columnNames){
             			String alias = t.alias + "." + colName;
-            			if (colName.equals(name) || alias.equals(name)) {
+            			String splitted = "";
+            			int k = -100;
+            			k = colName.indexOf(".");
+            			if (k > 0) {
+            				splitted = colName.substring(i + 1, colName.length());
+            			}
+                        
+            			if (colName.equals(name) || alias.equals(name) || splitted.equals(name)) {
             				table = t;
             				tableIndex = i;
             				break;

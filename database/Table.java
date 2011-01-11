@@ -45,15 +45,38 @@ public class Table implements Serializable {
         }
 
         String lookupValue(String name) {
+        	for (Table table : tables) {
+        		int columnIndex = table.getColumnIndex(name);
+        		if (columnIndex >= 0) {
+        			int tableIndex = 0;
+        			for (tableIndex = 0; tableIndex < tables.length; tableIndex++) {
+        				if (tables[tableIndex] == table) {
+        					break;
+        				}
+        			}
+        			int rowIndex = currentRowIndices[tableIndex];
+        			return table.rows.get(rowIndex).get(columnIndex);
+        		}
+        	}
+        	throw new IllegalArgumentException("no attribute '"+name+"' found");
+        }
+        	/*
             Integer tableIndex = Integer.valueOf(0);
             String columnName = name;
             String tableName = "";
             
             if (!anonymous) {
+            	if (!name.contains(".")) {
+            		name = "." + name;
+            	}
+            	
                 int i = name.indexOf(".");
                 tableName = name.substring(0, i);
                 columnName = name.substring(i + 1, name.length());
                 tableIndex = indexMap.get(tableName);
+                if (tableIndex == null && tableName.length() == 0) {
+                	tableIndex = 0;
+                }
 
                 if (tableIndex == null) {
                     throw new IllegalArgumentException("table '" + tableName
@@ -94,12 +117,43 @@ public class Table implements Serializable {
             			break;
             	}
             	
-            	if (table == null)
-            		throw new IllegalArgumentException("no column named '"
-                            + columnName + "' found in current table");
             	
+            	
+            	//if (table == null)
+            	//	throw new IllegalArgumentException("no column named '"
+                  //          + columnName + "' found in current table");
+            	
+            	if (table == null)
+            		table = tables[0];
+            		
             	int rowIndex = currentRowIndices[tableIndex];
                 int columnIndex = table.getColumnIndex(columnName);
+                
+                if (columnIndex < 0) {
+                	// try to find the column in ANY table
+                	for (Table next : tables) {
+                		int nextIndex = next.getColumnIndex(columnName);
+                		if (nextIndex >= 0) {
+                			columnIndex = nextIndex;
+                			break;
+                		}
+                		
+                		nextIndex = 0;
+                		for (String nextName : next.columnNames) {
+                			if (nextName.contains(".")) {
+                				String unqualifiedName = nextName.substring(nextName.indexOf(".")+1);
+                				if (unqualifiedName.equals(columnName)) {
+                					columnIndex = nextIndex;
+                					break;
+                				}
+                			}
+                			nextIndex++;
+                		}
+                		if (columnIndex >= 0) {
+                			break;
+                		}
+                	}
+                }
 
                 if (columnIndex < 0) {
                     throw new IllegalArgumentException("no column named '"
@@ -111,6 +165,7 @@ public class Table implements Serializable {
 
             
         }
+        */
     }
 
     static final long serialVersionUID = 1234;
@@ -166,11 +221,18 @@ public class Table implements Serializable {
 
     private int getColumnIndex(String name) {
         for (int i = 0; i < columnNames.size(); i++) {
-            if (columnNames.get(i).equals(name)) {
+            String nextName = columnNames.get(i);
+        	if (nextName.equals(name)) {
                 return i;
             }
-            if (name.equals(getOfficialName() + "." + columnNames.get(i))) {
+            if (name.equals(getOfficialName() + "." + nextName)) {
                 return i;
+            }
+            if (nextName.contains(".")) {
+            	String unqualifiedName = nextName.substring(nextName.indexOf(".")+1);
+            	if (unqualifiedName.equals(name)) {
+            		return i;
+            	}
             }
         }
         return -1;

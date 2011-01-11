@@ -47,10 +47,11 @@ public class Table implements Serializable {
         String lookupValue(String name) {
             Integer tableIndex = Integer.valueOf(0);
             String columnName = name;
-
+            String tableName = "";
+            
             if (!anonymous) {
                 int i = name.indexOf(".");
-                String tableName = name.substring(0, i);
+                tableName = name.substring(0, i);
                 columnName = name.substring(i + 1, name.length());
                 tableIndex = indexMap.get(tableName);
 
@@ -58,19 +59,50 @@ public class Table implements Serializable {
                     throw new IllegalArgumentException("table '" + tableName
                             + "' not found");
                 }
+                Table table = tables[tableIndex];
+
+                int rowIndex = currentRowIndices[tableIndex];
+                int columnIndex = table.getColumnIndex(columnName);
+
+                if (columnIndex < 0) {
+                    throw new IllegalArgumentException("no column named '"
+                            + columnName + "' found in current table");
+                }
+
+                return table.rows.get(rowIndex).get(columnIndex);
+            } else {
+            	Table table = null;
+            	
+            	for (int i = 0; i < tables.length; ++i ) {
+            		Table t = tables[i];
+            		for (String colName : t.columnNames){
+            			String alias = t.alias + "." + colName;
+            			if (colName.equals(name) || alias.equals(name)) {
+            				table = t;
+            				tableIndex = i;
+            				break;
+            			}
+            		}
+            		if (table != null)
+            			break;
+            	}
+            	
+            	if (table == null)
+            		throw new IllegalArgumentException("no column named '"
+                            + columnName + "' found in current table");
+            	
+            	int rowIndex = currentRowIndices[tableIndex];
+                int columnIndex = table.getColumnIndex(columnName);
+
+                if (columnIndex < 0) {
+                    throw new IllegalArgumentException("no column named '"
+                            + columnName + "' found in current table");
+                }
+            	
+                return table.rows.get(rowIndex).get(columnIndex);
             }
 
-            Table table = tables[tableIndex];
-
-            int rowIndex = currentRowIndices[tableIndex];
-            int columnIndex = table.getColumnIndex(columnName);
-
-            if (columnIndex < 0) {
-                throw new IllegalArgumentException("no column named '"
-                        + columnName + "' found in current table");
-            }
-
-            return table.rows.get(rowIndex).get(columnIndex);
+            
         }
     }
 

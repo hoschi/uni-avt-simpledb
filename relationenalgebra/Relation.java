@@ -73,7 +73,10 @@ public class Relation implements ITreeNode {
         	this.tuplenames = t.getColumnnames();
         }
         for (String name : tuplenames) {
-            result.add(name);
+        	if (alias == null)
+        		result.add(name);
+        	else
+        		result.add(alias+"."+name);
         }
         return result;
     }

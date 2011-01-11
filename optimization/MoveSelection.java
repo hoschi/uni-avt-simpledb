@@ -50,7 +50,7 @@ public class MoveSelection implements IOptimization {
                 // check if the selection contains only attributes
                 // from the projection
                 Projection p = (Projection)child;
-                Set<String> selectionAttributes = s.getAttributes();
+                Set<String> selectionAttributes = s.getExpr().getAttributes();
                 Set<String> projectionAttributes = p.getAttributes();
                 if (projectionAttributes.containsAll(selectionAttributes)) {
                     switchWithChild = 1;
@@ -58,13 +58,15 @@ public class MoveSelection implements IOptimization {
             } else if (child instanceof CrossProduct) { // or join
                 CrossProduct cp = (CrossProduct)child;
                 // check if one child contains all the attributes from the selection
-                Set<String> selectionAttributes = s.getAttributes();
-                if (cp.getChild().getAttributes().containsAll(
-                        selectionAttributes)) {
+                Set<String> selectionAttributes = s.getExpr().getAttributes();
+                Set<String> childAttributes = cp.getChild().getAttributes();
+                if (childAttributes.containsAll(selectionAttributes)) {
                     switchWithChild = 1;
-                } else if (cp.getSecondChild().getAttributes().containsAll(
-                        selectionAttributes)) {
-                    switchWithChild = 2;
+                } else {
+                	childAttributes = cp.getSecondChild().getAttributes();
+                	if (childAttributes.containsAll(selectionAttributes)) {
+                        switchWithChild = 2;
+                    }
                 }
             } else {
                 switchWithChild = 0;
@@ -87,7 +89,7 @@ public class MoveSelection implements IOptimization {
 	            case 2: {
 	                replaceChild(parent, s, child);
 	                ITwoChildNode c2 = (ITwoChildNode)child;
-	                s.setChild(c2.getChild());
+	                s.setChild(c2.getSecondChild());
 	                c2.setSecondChild(s);
 	                parent = child;
 	            } break;

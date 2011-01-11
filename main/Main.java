@@ -203,10 +203,10 @@ public class Main {
         if (query instanceof ITwoChildNode) {
             Table child1Result = executeQuery(((ITwoChildNode)query).getChild());
             Table child2Result = executeQuery(((ITwoChildNode)query).getSecondChild());
-            if (query instanceof CrossProduct)
-                return child1Result.cross(child2Result);
             if (query instanceof Join)
                 return child1Result.join(child2Result, ((Join)query).getExpr());
+            if (query instanceof CrossProduct)
+                return child1Result.cross(child2Result);
         } else if (query instanceof IOneChildNode) {
             Table childResult = executeQuery(((IOneChildNode)query).getChild());
             if (query instanceof Projection)

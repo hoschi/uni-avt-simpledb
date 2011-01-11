@@ -8,6 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import main.Logger;
 import relationenalgebra.AndExpression;
 import relationenalgebra.EqualityExpression;
 import relationenalgebra.OrExpression;
@@ -307,6 +308,9 @@ public class Table implements Serializable {
                 getOfficialName()));
         newColumnNames.addAll(toQualifiedColumnNames(table.columnNames, table
                 .getOfficialName()));
+        
+        //if (exp != null) 
+        //	System.out.println("new column names: "+newColumnNames);
 
         for (int i = 0; i < rows.size(); i++) {
             vl.setCurrentRowIndex(0, i);
@@ -316,10 +320,14 @@ public class Table implements Serializable {
                 newRow.addAll(rows.get(i));
                 newRow.addAll(table.rows.get(j));
 
-                //Logger.debug("next row "+i+", "+j+": "+newRow);
+
+                //System.out.print("next row "+i+", "+j+": "+newRow);
 
                 if (exp == null || evaluate(exp, vl)) {
                     newRows.add(newRow);
+                    //if (exp != null) System.out.println(" ACCEPTED");
+                } else {
+                	//if (exp != null) System.out.println(" REJECTED");
                 }
             }
         }

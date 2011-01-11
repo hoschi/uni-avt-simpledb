@@ -36,10 +36,18 @@ public class MoveProjection implements IOptimization {
     private static ITreeNode moveProjection(Projection p) {
         ITreeNode child = p.getChild();
         if (child instanceof Selection) {
-        	// always switch with selection
+        	
+        	
         	Selection s = (Selection)child;
-        	p.setChild(s.getChild());
-        	s.setChild(moveProjection(p));
+        	
+            Set<String> selectionAttributes = s.getExpr().getAttributes();
+            Set<String> projectionAttributes = p.getAttributes();
+            
+            if (selectionAttributes.containsAll(projectionAttributes)) {
+            	p.setChild(s.getChild());
+            	s.setChild(moveProjection(p));
+            }
+            
         	return s;
         } else if (child instanceof CrossProduct) {
         	// handle cross product or join

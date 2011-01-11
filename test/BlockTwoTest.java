@@ -163,6 +163,7 @@ public class BlockTwoTest {
 	
 	@Test
 	public void TestDetectJoinsAndMergeOnlyJoinExpressions() {
+		Assert.fail("wieder grade biegen, war falsch");
 		TreeNodeTester test;
 		ITreeNode plan = Main.sqlToRelationenAlgebra("select B.ID, K.Name " +
 				"from Bestellung as B, Kunde as K, Kunde_Bestellung as KB " +
@@ -207,19 +208,22 @@ public class BlockTwoTest {
 		// was
 		test = new TreeNodeTester(plan);
 		test.nodeIs(Projection.class).followFirst()
-		.nodeIs(Selection.class).followFirst()
-		.nodeIs(Selection.class).firstIs(CrossProduct.class).followFirst()
-		.firstIs(Relation.class).secondIs(Relation.class).reset();
+		.nodeIs(Join.class).secondIs(Relation.class).firstIs(Selection.class).followFirst()
+		.firstIs(Relation.class).reset();
 		
 		plan = new MoveProjection().optimize(plan);
 				
 		// move Name projection right before Name relation
 		test = new TreeNodeTester(plan);
-		test.nodeIs(Selection.class).followFirst()
+		test.nodeIs(Projection.class).followFirst()
+		.nodeIs(Join.class).followFirst()
 		.nodeIs(Selection.class).followFirst()
-		.nodeIs(CrossProduct.class)
-		.firstIs(Projection.class).secondIs(Relation.class).followFirst()
-		.firstIs(Relation.class).reset();
+		.nodeIs(Projection.class).firstIs(Relation.class).reset();
+		
+		test.nodeIs(Projection.class).followFirst()
+		.nodeIs(Join.class).followSecond()
+		.nodeIs(Projection.class).firstIs(Relation.class).reset();
+		
 		
 	}
 
